@@ -4,7 +4,6 @@ import type {
   Filament,
   Order,
   Quote,
-  SubscriptionPlan,
   DashboardStats,
 } from "@/types";
 
@@ -316,69 +315,6 @@ export const mockQuotes: Quote[] = [
     total: 181.50,
     validUntil: "2024-08-05",
     createdAt: "2024-07-15",
-  },
-];
-
-export const mockSubscriptionPlans: SubscriptionPlan[] = [
-  {
-    id: "1",
-    name: "Básico",
-    description: "Para quem está começando e tem poucas demandas.",
-    price: 49.90,
-    billingCycle: "monthly",
-    maxPrints: 5,
-    maxFilamentGrams: 250,
-    maxHours: 10,
-    features: [
-      "Até 5 impressões por mês",
-      "250g de filamento",
-      "10 horas de impressão",
-      "Suporte por e-mail",
-      "Filamentos PLA e ABS",
-    ],
-    isActive: true,
-    createdAt: "2024-01-01",
-  },
-  {
-    id: "2",
-    name: "Profissional",
-    description: "Para profissionais que precisam de mais volume.",
-    price: 99.90,
-    billingCycle: "monthly",
-    maxPrints: 15,
-    maxFilamentGrams: 750,
-    maxHours: 30,
-    features: [
-      "Até 15 impressões por mês",
-      "750g de filamento",
-      "30 horas de impressão",
-      "Suporte prioritário",
-      "Filamentos PLA, ABS, PETG e TPU",
-      "Relatórios mensais",
-    ],
-    isActive: true,
-    createdAt: "2024-01-01",
-  },
-  {
-    id: "3",
-    name: "Enterprise",
-    description: "Para empresas com alta demanda e necessidades especiais.",
-    price: 199.90,
-    billingCycle: "monthly",
-    maxPrints: -1,
-    maxFilamentGrams: 2000,
-    maxHours: 80,
-    features: [
-      "Impressões ilimitadas",
-      "Até 2kg de filamento",
-      "80 horas de impressão",
-      "Suporte VIP 24/7",
-      "Todos os tipos de filamento",
-      "Relatórios detalhados",
-      "Prioridade na fila de produção",
-    ],
-    isActive: true,
-    createdAt: "2024-02-01",
   },
 ];
 

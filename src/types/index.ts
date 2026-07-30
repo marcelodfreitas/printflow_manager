@@ -96,20 +96,6 @@ export interface QuoteItem {
   total: number;
 }
 
-export interface SubscriptionPlan {
-  id: string;
-  name: string;
-  description: string;
-  price: number;
-  billingCycle: "monthly" | "quarterly" | "yearly";
-  maxPrints: number;
-  maxFilamentGrams: number;
-  maxHours: number;
-  features: string[];
-  isActive: boolean;
-  createdAt: string;
-}
-
 export interface DashboardStats {
   totalClients: number;
   totalPrinters: number;

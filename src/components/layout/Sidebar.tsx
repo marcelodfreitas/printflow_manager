@@ -12,7 +12,6 @@ import {
   Package,
   FileText,
   Calculator,
-  Crown,
   LogOut,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
@@ -30,7 +29,6 @@ const navSections = [
       { href: "/pedidos", label: "Pedidos", icon: Package },
       { href: "/orcamentos", label: "Orçamentos", icon: FileText },
       { href: "/calculadora", label: "Calculadora de Custos", icon: Calculator },
-      // { href: "/planos", label: "Planos de Assinatura", icon: Crown },
     ],
   },
   {
