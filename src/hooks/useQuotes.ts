@@ -13,30 +13,35 @@ export function useQuotes() {
 
   const fetchQuotes = useCallback(async () => {
     setLoading(true);
-    const { data } = await supabase
-      .from("quotes")
-      .select("*")
-      .order("created_at", { ascending: false });
-    if (data) {
-      const rows = toCamelCaseArray<Quote>(data);
-      const withItems = await Promise.all(
-        rows.map(async (quote) => {
-          const { data: items } = await supabase
-            .from("quote_items")
-            .select("*")
-            .eq("quote_id", quote.id);
-          return {
-            ...quote,
-            items: items
-              ? toCamelCaseArray<QuoteItem>(items)
-              : [],
-          } as Quote;
-        }),
-      );
-      setQuotes(withItems);
+    try {
+      const { data } = await supabase
+        .from("quotes")
+        .select("*")
+        .order("created_at", { ascending: false });
+      if (data) {
+        const rows = toCamelCaseArray<Quote>(data);
+        const withItems = await Promise.all(
+          rows.map(async (quote) => {
+            const { data: items } = await supabase
+              .from("quote_items")
+              .select("*")
+              .eq("quote_id", quote.id);
+            return {
+              ...quote,
+              items: items ? toCamelCaseArray<QuoteItem>(items) : [],
+            } as Quote;
+          }),
+        );
+        setQuotes(withItems);
+      }
+    } catch (err) {
+      console.error("Erro ao buscar orçamentos:", err);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   }, [supabase]);
+
+  useEffect(() => { fetchQuotes(); }, [fetchQuotes]);
 
   async function create(input: {
     clientId: string;
@@ -49,44 +54,48 @@ export function useQuotes() {
     tax: number;
     total: number;
   }) {
-    const userId = await getUserId();
-    if (!userId) return null;
-    const { clientId, clientName, status, notes, validUntil, items, subtotal, tax, total } = input;
-    const { data: quoteData } = await supabase
-      .from("quotes")
-      .insert({
-        client_id: clientId,
-        client_name: clientName,
-        status,
-        notes: notes || null,
-        valid_until: validUntil,
-        subtotal,
-        tax,
-        total,
-        user_id: userId,
-      })
-      .select()
-      .single();
+    try {
+      const userId = await getUserId();
+      if (!userId) return null;
+      const { clientId, clientName, status, notes, validUntil, items, subtotal, tax, total } = input;
+      const { data: quoteData } = await supabase
+        .from("quotes")
+        .insert({
+          client_id: clientId,
+          client_name: clientName,
+          status,
+          notes: notes || null,
+          valid_until: validUntil,
+          subtotal,
+          tax,
+          total,
+          user_id: userId,
+        })
+        .select()
+        .single();
 
-    if (quoteData) {
-      const quoteId = quoteData.id;
-      const { data: itemData } = await supabase
-        .from("quote_items")
-        .insert(
-          items.map((item) => ({
-            quote_id: quoteId,
-            description: item.description,
-            quantity: item.quantity,
-            unit_price: item.unitPrice,
-            total: item.total,
-          })),
-        )
-        .select();
+      if (quoteData) {
+        const quoteId = quoteData.id;
+        const { data: itemData } = await supabase
+          .from("quote_items")
+          .insert(
+            items.map((item) => ({
+              quote_id: quoteId,
+              description: item.description,
+              quantity: item.quantity,
+              unit_price: item.unitPrice,
+              total: item.total,
+            })),
+          )
+          .select();
 
-      const created = toCamelCase<Quote>(quoteData);
-      created.items = itemData ? toCamelCaseArray<QuoteItem>(itemData) : [];
-      setQuotes((prev) => [created, ...prev]);
-      return created;
+        const created = toCamelCase<Quote>(quoteData);
+        created.items = itemData ? toCamelCaseArray<QuoteItem>(itemData) : [];
+        setQuotes((prev) => [created, ...prev]);
+        return created;
+      }
+    } catch (err) {
+      console.error("Erro ao criar orçamento:", err);
     }
     return null;
   }
@@ -105,54 +114,62 @@ export function useQuotes() {
       total?: number;
     },
   ) {
-    const updateData: Record<string, unknown> = {};
-    if (input.clientId !== undefined) updateData.client_id = input.clientId;
-    if (input.clientName !== undefined) updateData.client_name = input.clientName;
-    if (input.status !== undefined) updateData.status = input.status;
-    if (input.notes !== undefined) updateData.notes = input.notes;
-    if (input.validUntil !== undefined) updateData.valid_until = input.validUntil;
-    if (input.subtotal !== undefined) updateData.subtotal = input.subtotal;
-    if (input.tax !== undefined) updateData.tax = input.tax;
-    if (input.total !== undefined) updateData.total = input.total;
+    try {
+      const updateData: Record<string, unknown> = {};
+      if (input.clientId !== undefined) updateData.client_id = input.clientId;
+      if (input.clientName !== undefined) updateData.client_name = input.clientName;
+      if (input.status !== undefined) updateData.status = input.status;
+      if (input.notes !== undefined) updateData.notes = input.notes;
+      if (input.validUntil !== undefined) updateData.valid_until = input.validUntil;
+      if (input.subtotal !== undefined) updateData.subtotal = input.subtotal;
+      if (input.tax !== undefined) updateData.tax = input.tax;
+      if (input.total !== undefined) updateData.total = input.total;
 
-    const { data: quoteData } = await supabase
-      .from("quotes")
-      .update(updateData)
-      .eq("id", id)
-      .select()
-      .single();
+      const { data: quoteData } = await supabase
+        .from("quotes")
+        .update(updateData)
+        .eq("id", id)
+        .select()
+        .single();
 
-    if (quoteData) {
-      if (input.items) {
-        await supabase.from("quote_items").delete().eq("quote_id", id);
-        await supabase.from("quote_items").insert(
-          input.items.map((item) => ({
-            quote_id: id,
-            description: item.description,
-            quantity: item.quantity,
-            unit_price: item.unitPrice,
-            total: item.total,
-          })),
-        );
+      if (quoteData) {
+        if (input.items) {
+          await supabase.from("quote_items").delete().eq("quote_id", id);
+          await supabase.from("quote_items").insert(
+            input.items.map((item) => ({
+              quote_id: id,
+              description: item.description,
+              quantity: item.quantity,
+              unit_price: item.unitPrice,
+              total: item.total,
+            })),
+          );
+        }
+
+        const { data: itemData } = await supabase
+          .from("quote_items")
+          .select("*")
+          .eq("quote_id", id);
+
+        const updated = toCamelCase<Quote>(quoteData);
+        updated.items = itemData ? toCamelCaseArray<QuoteItem>(itemData) : [];
+        setQuotes((prev) => prev.map((q) => (q.id === id ? updated : q)));
+        return updated;
       }
-
-      const { data: itemData } = await supabase
-        .from("quote_items")
-        .select("*")
-        .eq("quote_id", id);
-
-      const updated = toCamelCase<Quote>(quoteData);
-      updated.items = itemData ? toCamelCaseArray<QuoteItem>(itemData) : [];
-      setQuotes((prev) => prev.map((q) => (q.id === id ? updated : q)));
-      return updated;
+    } catch (err) {
+      console.error("Erro ao atualizar orçamento:", err);
     }
     return null;
   }
 
   async function remove(id: string) {
-    await supabase.from("quote_items").delete().eq("quote_id", id);
-    await supabase.from("quotes").delete().eq("id", id);
-    setQuotes((prev) => prev.filter((q) => q.id !== id));
+    try {
+      await supabase.from("quote_items").delete().eq("quote_id", id);
+      await supabase.from("quotes").delete().eq("id", id);
+      setQuotes((prev) => prev.filter((q) => q.id !== id));
+    } catch (err) {
+      console.error("Erro ao excluir orçamento:", err);
+    }
   }
 
   return { quotes, loading, fetchQuotes, create, update, remove };
