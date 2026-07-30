@@ -24,22 +24,18 @@ export default function LoginPage() {
     setError("");
     setLoading(true);
 
-    let success: boolean;
+    let errorMsg: string | null;
 
     if (mode === "login") {
-      success = await login(email, password);
+      errorMsg = await login(email, password);
     } else {
-      success = await register(name, email, password);
+      errorMsg = await register(name, email, password);
     }
 
-    if (success) {
-      router.push("/");
+    if (errorMsg) {
+      setError(errorMsg);
     } else {
-      setError(
-        mode === "login"
-          ? "Credenciais inválidas"
-          : "Erro ao criar conta"
-      );
+      router.push("/");
     }
     setLoading(false);
   }

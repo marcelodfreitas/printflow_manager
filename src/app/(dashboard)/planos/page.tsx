@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
 import { Card, CardContent } from "@/components/ui/Card";
 import { Modal } from "@/components/ui/Modal";
-import { mockSubscriptionPlans } from "@/data/mock";
+import { useSubscriptionPlans } from "@/hooks/useSubscriptionPlans";
 import { formatCurrency } from "@/lib/utils";
 import type { SubscriptionPlan } from "@/types";
 
@@ -25,7 +25,7 @@ const billingCycleOptions = [
 ];
 
 export default function PlanosPage() {
-  const [plans, setPlans] = useState<SubscriptionPlan[]>(mockSubscriptionPlans);
+  const { plans, loading, create, update, remove } = useSubscriptionPlans();
   const [search, setSearch] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
   const [editingPlan, setEditingPlan] = useState<SubscriptionPlan | null>(null);
@@ -103,35 +103,30 @@ export default function PlanosPage() {
     };
 
     if (editingPlan) {
-      setPlans((prev) =>
-        prev.map((p) =>
-          p.id === editingPlan.id
-            ? { ...p, ...data, createdAt: p.createdAt }
-            : p,
-        ),
-      );
+      update(editingPlan.id, data);
     } else {
-      const newPlan: SubscriptionPlan = {
-        id: String(Date.now()),
-        ...data,
-        createdAt: new Date().toISOString().split("T")[0],
-      };
-      setPlans((prev) => [newPlan, ...prev]);
+      create(data);
     }
     setModalOpen(false);
   }
 
   function handleDelete(id: string) {
     if (confirm("Tem certeza que deseja excluir este plano?")) {
-      setPlans((prev) => prev.filter((p) => p.id !== id));
+      remove(id);
     }
   }
 
-  function toggleActive(id: string) {
-    setPlans((prev) =>
-      prev.map((p) =>
-        p.id === id ? { ...p, isActive: !p.isActive } : p,
-      ),
+  function toggleActive(id: string, plan: SubscriptionPlan) {
+    update(id, { isActive: !plan.isActive });
+  }
+
+  if (loading) {
+    return (
+      <div className="relative min-h-screen bg-[#050914]">
+        <div className="flex items-center justify-center h-96">
+          <div className="h-8 w-8 animate-spin rounded-full border-2 border-white/20 border-t-[#fd6401]" />
+        </div>
+      </div>
     );
   }
 
@@ -283,7 +278,7 @@ export default function PlanosPage() {
 
                   <div className="mt-6 flex items-center gap-2 pt-4 border-t border-white/10">
                     <button
-                      onClick={() => toggleActive(plan.id)}
+                      onClick={() => toggleActive(plan.id, plan)}
                       className={`rounded-full px-3 py-1 text-xs font-medium transition-all ${
                         plan.isActive
                           ? "bg-green-500/20 text-green-400 hover:bg-green-500/30"

@@ -16,11 +16,11 @@ import {
 } from "@/components/ui/Table";
 import { Modal } from "@/components/ui/Modal";
 import type { Client } from "@/types";
-import { mockClients } from "@/data/mock";
+import { useClients } from "@/hooks/useClients";
 import { formatDate } from "@/lib/utils";
 
 export default function ClientPage() {
-  const [clients, setClients] = useState<Client[]>(mockClients);
+  const { clients, loading, create, update, remove } = useClients();
   const [search, setSearch] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
   const [editingClient, setEditingClient] = useState<Client | null>(null);
@@ -60,18 +60,9 @@ export default function ClientPage() {
     e.preventDefault();
 
     if (editingClient) {
-      setClients((prev) =>
-        prev.map((c) =>
-          c.id === editingClient.id ? { ...c, ...form } : c
-        )
-      );
+      update(editingClient.id, form);
     } else {
-      const newClient: Client = {
-        id: String(Date.now()),
-        ...form,
-        createdAt: new Date().toISOString().split("T")[0],
-      };
-      setClients((prev) => [newClient, ...prev]);
+      create(form);
     }
 
     setModalOpen(false);
@@ -79,7 +70,7 @@ export default function ClientPage() {
 
   function handleDelete(id: string) {
     if (confirm("Tem certeza que deseja excluir este cliente?")) {
-      setClients((prev) => prev.filter((c) => c.id !== id));
+      remove(id);
     }
   }
 
@@ -90,6 +81,13 @@ export default function ClientPage() {
   <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(255,255,255,0.06)_1px,transparent_0)] bg-[size:32px_32px]" />
       <Header title="Clientes" className="border-b border-white/10 bg-white/[0.02] backdrop-blur-xl text-white" />
 
+      {loading && (
+        <div className="flex items-center justify-center py-12">
+          <div className="text-sm text-white/50">Carregando...</div>
+        </div>
+      )}
+
+      {!loading && (
       <div className="p-6 space-y-6">
         <Card className="border border-white/10 bg-white/[0.03] backdrop-blur-2xl shadow-2xl shadow-black/40">
           <CardHeader className="border-b border-white/5">
@@ -192,6 +190,7 @@ export default function ClientPage() {
           </CardContent>
         </Card>
       </div>
+      )}
 
       <Modal
         isOpen={modalOpen}

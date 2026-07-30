@@ -35,10 +35,10 @@ export function Header({ onMenuClick, title, className }: HeaderProps) {
 
       <div className="flex items-center gap-3 border-l border-white/10 pl-4">
         <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-[#0d1a35] to-[#071124] text-sm font-medium text-[#fd6401] ring-1 ring-white/10">
-          {user?.name?.charAt(0).toUpperCase()}
+          {user?.email?.charAt(0).toUpperCase()}
         </div>
         <div className="hidden text-sm sm:block">
-          <p className="font-medium text-white/90">{user?.name}</p>
+          <p className="font-medium text-white/90">{user?.user_metadata?.name as string}</p>
           <p className="text-xs text-white/40">{user?.email}</p>
         </div>
       </div>

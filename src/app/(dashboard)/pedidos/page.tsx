@@ -18,12 +18,10 @@ import {
 import { Modal } from "@/components/ui/Modal";
 import { StatusBadge } from "@/components/ui/Badge";
 import type { Order } from "@/types";
-import {
-  mockOrders,
-  mockClients,
-  mockPrinters,
-  mockFilaments,
-} from "@/data/mock";
+import { useOrders } from "@/hooks/useOrders";
+import { useClients } from "@/hooks/useClients";
+import { usePrinters } from "@/hooks/usePrinters";
+import { useFilaments } from "@/hooks/useFilaments";
 import { formatCurrency, formatDate } from "@/lib/utils";
 
 const orderStatuses = [
@@ -37,7 +35,10 @@ const orderStatuses = [
 ];
 
 export default function OrdersPage() {
-  const [orders, setOrders] = useState<Order[]>(mockOrders);
+  const { orders, loading: ordersLoading, create, update, remove } = useOrders();
+  const { clients } = useClients();
+  const { printers: printerOptions } = usePrinters();
+  const { filaments } = useFilaments();
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [modalOpen, setModalOpen] = useState(false);
@@ -97,12 +98,12 @@ export default function OrdersPage() {
     setModalOpen(true);
   }
 
-  function handleSave(e: React.FormEvent) {
+  async function handleSave(e: React.FormEvent) {
     e.preventDefault();
 
-    const selectedClient = mockClients.find((c) => c.id === form.clientId);
-    const selectedPrinter = mockPrinters.find((p) => p.id === form.printerId);
-    const selectedFilament = mockFilaments.find(
+    const selectedClient = clients.find((c) => c.id === form.clientId);
+    const selectedPrinter = printerOptions.find((p) => p.id === form.printerId);
+    const selectedFilament = filaments.find(
       (f) => f.id === form.filamentId,
     );
 
@@ -110,60 +111,36 @@ export default function OrdersPage() {
       (selectedFilament?.costPerKg || 0) * (Number(form.filamentGrams) / 1000);
     const cost = filamentCost;
 
+    const data = {
+      clientId: form.clientId,
+      clientName: selectedClient?.name || "",
+      printerId: form.printerId,
+      printerName: selectedPrinter?.name || "",
+      filamentId: form.filamentId,
+      filamentName: selectedFilament?.name || "",
+      filamentColor: selectedFilament?.colorHex || "",
+      status: form.status as Order["status"],
+      quantity: Number(form.quantity),
+      totalHours: Number(form.totalHours),
+      filamentGrams: Number(form.filamentGrams),
+      cost,
+      price: Number(form.price),
+      notes: form.notes,
+      deadline: form.deadline,
+    };
+
     if (editingOrder) {
-      setOrders((prev) =>
-        prev.map((o) =>
-          o.id === editingOrder.id
-            ? {
-                ...o,
-                clientId: form.clientId,
-                clientName: selectedClient?.name || o.clientName,
-                printerId: form.printerId,
-                printerName: selectedPrinter?.name || o.printerName,
-                filamentId: form.filamentId,
-                filamentName: selectedFilament?.name || o.filamentName,
-                filamentColor: selectedFilament?.colorHex || o.filamentColor,
-                status: form.status,
-                quantity: Number(form.quantity),
-                totalHours: Number(form.totalHours),
-                filamentGrams: Number(form.filamentGrams),
-                cost,
-                price: Number(form.price),
-                notes: form.notes,
-                deadline: form.deadline,
-              }
-            : o,
-        ),
-      );
+      await update(editingOrder.id, data);
     } else {
-      const newOrder: Order = {
-        id: String(Date.now()),
-        clientId: form.clientId,
-        clientName: selectedClient?.name || "",
-        printerId: form.printerId,
-        printerName: selectedPrinter?.name || "",
-        filamentId: form.filamentId,
-        filamentName: selectedFilament?.name || "",
-        filamentColor: selectedFilament?.colorHex || "",
-        status: form.status,
-        quantity: Number(form.quantity),
-        totalHours: Number(form.totalHours),
-        filamentGrams: Number(form.filamentGrams),
-        cost,
-        price: Number(form.price),
-        notes: form.notes,
-        deadline: form.deadline,
-        createdAt: new Date().toISOString().split("T")[0],
-      };
-      setOrders((prev) => [newOrder, ...prev]);
+      await create(data);
     }
 
     setModalOpen(false);
   }
 
-  function handleDelete(id: string) {
+  async function handleDelete(id: string) {
     if (confirm("Tem certeza que deseja excluir este pedido?")) {
-      setOrders((prev) => prev.filter((o) => o.id !== id));
+      await remove(id);
     }
   }
 
@@ -178,12 +155,17 @@ export default function OrdersPage() {
 
       <div className="relative"></div>
 
-      <Header
+              <Header
         title="Pedidos"
         className="border-b border-white/10 bg-white/[0.02] backdrop-blur-xl text-white"
       />
 
-      <div className="p-6 space-y-6">
+      {ordersLoading ? (
+        <div className="p-6 flex items-center justify-center text-white/50 min-h-[200px]">
+          Carregando...
+        </div>
+      ) : (
+        <div className="p-6 space-y-6">
         <div className="grid gap-4 sm:grid-cols-3">
           <Card className="border border-white/10 bg-[#050914] backdrop-blur-2xl shadow-2xl shadow-black/40">
             <CardContent>
@@ -361,6 +343,7 @@ export default function OrdersPage() {
           </CardContent>
         </Card>
       </div>
+      )}
 
       <Modal
         isOpen={modalOpen}
@@ -381,7 +364,7 @@ export default function OrdersPage() {
                         focus:border-[#fd6401]/50
                         focus:ring-[#fd6401]/20
                         "
-              options={mockClients.map((c) => ({
+              options={clients.map((c) => ({
                 value: c.id,
                 label: c.name,
               }))}
@@ -400,7 +383,7 @@ export default function OrdersPage() {
                         focus:border-[#fd6401]/50
                         focus:ring-[#fd6401]/20
                         "
-              options={mockPrinters.map((p) => ({
+              options={printerOptions.map((p) => ({
                 value: p.id,
                 label: `${p.name} (${p.status})`,
               }))}
@@ -421,7 +404,7 @@ export default function OrdersPage() {
                         focus:border-[#fd6401]/50
                         focus:ring-[#fd6401]/20
                         "
-              options={mockFilaments.map((f) => ({
+              options={filaments.map((f) => ({
                 value: f.id,
                 label: `${f.name} - ${f.color}`,
               }))}

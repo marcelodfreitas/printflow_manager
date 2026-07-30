@@ -7,7 +7,10 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
 import { Card, CardContent } from "@/components/ui/Card";
-import { mockFilaments, mockPrinters, mockOrders } from "@/data/mock";
+import { useFilaments } from "@/hooks/useFilaments";
+import { usePrinters } from "@/hooks/usePrinters";
+import { useOrders } from "@/hooks/useOrders";
+import type { Filament, Printer } from "@/types";
 import { formatCurrency } from "@/lib/utils";
 
 interface CalcInputs {
@@ -39,10 +42,10 @@ const tabs = [
   { id: "simulation", label: "Simulação", icon: Beaker },
 ];
 
-function useCalculator(inputs: CalcInputs) {
+function useCalculator(inputs: CalcInputs, filaments: Filament[], printers: Printer[]) {
   return useMemo(() => {
-    const filament = mockFilaments.find((f) => f.id === inputs.filamentId);
-    const printer = mockPrinters.find((p) => p.id === inputs.printerId);
+    const filament = filaments.find((f) => f.id === inputs.filamentId);
+    const printer = printers.find((p) => p.id === inputs.printerId);
 
     const weight = Number(inputs.weight) || 0;
     const waste = Number(inputs.waste) || 0;
@@ -84,16 +87,24 @@ function useCalculator(inputs: CalcInputs) {
       powerKW,
       printTime,
     };
-  }, [inputs]);
+  }, [inputs, filaments, printers]);
 }
 
 export default function CalculadoraPage() {
+  const { filaments, loading: loadingFilaments } = useFilaments();
+  const { printers, loading: loadingPrinters } = usePrinters();
+  const { orders, loading: loadingOrders } = useOrders();
+
   const [activeTab, setActiveTab] = useState("calculator");
   const [calcInputs, setCalcInputs] = useState<CalcInputs>(defaultInputs);
   const [simInputs, setSimInputs] = useState<CalcInputs>(defaultInputs);
 
-  const calcResult = useCalculator(calcInputs);
-  const simResult = useCalculator(simInputs);
+  const calcResult = useCalculator(calcInputs, filaments, printers);
+  const simResult = useCalculator(simInputs, filaments, printers);
+
+  if (loadingFilaments || loadingPrinters || loadingOrders) {
+    return <div>Carregando...</div>;
+  }
 
   const currentInputs = activeTab === "calculator" ? calcInputs : simInputs;
   const setCurrentInputs = activeTab === "calculator" ? setCalcInputs : setSimInputs;
@@ -103,7 +114,7 @@ export default function CalculadoraPage() {
     else setSimInputs(defaultInputs);
   }
 
-  const orderOptions = mockOrders.map((o) => ({
+  const orderOptions = orders.map((o) => ({
     value: o.id,
     label: `#${o.id} - ${o.clientName}`,
   }));
@@ -164,7 +175,7 @@ export default function CalculadoraPage() {
                     options={orderOptions}
                     className="bg-white/5 border-white/10 text-white"
                     onChange={(e) => {
-                      const order = mockOrders.find((o) => o.id === e.target.value);
+                      const order = orders.find((o) => o.id === e.target.value);
                       if (order) {
                         setCurrentInputs((prev) => ({
                           ...prev,
@@ -179,7 +190,7 @@ export default function CalculadoraPage() {
                   <Select
                     label="Filamento"
                     placeholder="Selecione..."
-                    options={mockFilaments.map((f) => ({
+                    options={filaments.map((f) => ({
                       value: f.id,
                       label: `${f.name} (${formatCurrency(f.costPerKg)}/kg)`,
                     }))}
@@ -190,7 +201,7 @@ export default function CalculadoraPage() {
                   <Select
                     label="Impressora"
                     placeholder="Selecione..."
-                    options={mockPrinters.map((p) => ({
+                    options={printers.map((p) => ({
                       value: p.id,
                       label: `${p.name} (${p.costPerHour.toFixed(2)}/h)`,
                     }))}

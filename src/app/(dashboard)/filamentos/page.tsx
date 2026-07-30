@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/Table";
 import { Modal } from "@/components/ui/Modal";
 import type { Filament } from "@/types";
-import { mockFilaments } from "@/data/mock";
+import { useFilaments } from "@/hooks/useFilaments";
 import { formatCurrency } from "@/lib/utils";
 
 const filamentTypes = [
@@ -31,7 +31,7 @@ const filamentTypes = [
 ];
 
 export default function FilamentsPage() {
-  const [filaments, setFilaments] = useState<Filament[]>(mockFilaments);
+  const { filaments, loading, create, update, remove } = useFilaments();
   const [search, setSearch] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
   const [editingFilament, setEditingFilament] = useState<Filament | null>(null);
@@ -102,11 +102,9 @@ export default function FilamentsPage() {
     };
 
     if (editingFilament) {
-      setFilaments((prev) =>
-        prev.map((f) => (f.id === editingFilament.id ? { ...f, ...data } : f)),
-      );
+      update(editingFilament.id, data);
     } else {
-      setFilaments((prev) => [{ id: String(Date.now()), ...data }, ...prev]);
+      create(data);
     }
 
     setModalOpen(false);
@@ -114,7 +112,7 @@ export default function FilamentsPage() {
 
   function handleDelete(id: string) {
     if (confirm("Tem certeza que deseja excluir este filamento?")) {
-      setFilaments((prev) => prev.filter((f) => f.id !== id));
+      remove(id);
     }
   }
 
@@ -132,7 +130,13 @@ export default function FilamentsPage() {
         className="border-b border-white/10 bg-white/[0.02] backdrop-blur-xl text-white"
       />
 
-      <div className="p-6  space-y-6">
+      {loading && (
+        <div className="flex items-center justify-center py-12">
+          <div className="text-sm text-white/50">Carregando...</div>
+        </div>
+      )}
+
+      {!loading && (<>
         <div className="grid gap-4  sm:grid-cols-3">
           <Card className="border border-white/10 bg-white/[0.03] backdrop-blur-2xl shadow-2xl shadow-black/40">
             <CardContent>
@@ -299,7 +303,6 @@ export default function FilamentsPage() {
             </Table>
           </CardContent>
         </Card>
-      </div>
 
       <Modal
         isOpen={modalOpen}
@@ -486,6 +489,8 @@ export default function FilamentsPage() {
           </div>
         </form>
       </Modal>
+      </>
+    )}
     </div>
   );
 }

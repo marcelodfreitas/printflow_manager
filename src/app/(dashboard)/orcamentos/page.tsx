@@ -18,13 +18,14 @@ import {
 import { Modal } from "@/components/ui/Modal";
 import { StatusBadge } from "@/components/ui/Badge";
 import type { Quote, QuoteItem } from "@/types";
+import { useQuotes } from "@/hooks/useQuotes";
+import { useClients } from "@/hooks/useClients";
 
 interface QuoteFormItem {
   description: string;
   quantity: string;
   unitPrice: string;
 }
-import { mockQuotes, mockClients } from "@/data/mock";
 import { formatCurrency, formatDate } from "@/lib/utils";
 
 const quoteStatuses = [
@@ -36,7 +37,8 @@ const quoteStatuses = [
 ];
 
 export default function QuotesPage() {
-  const [quotes, setQuotes] = useState<Quote[]>(mockQuotes);
+  const { quotes, loading, create, update, remove } = useQuotes();
+  const { clients } = useClients();
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [modalOpen, setModalOpen] = useState(false);
@@ -127,9 +129,9 @@ export default function QuotesPage() {
     const tax = subtotal * 0.1;
     const total = subtotal + tax;
 
-    const selectedClient = mockClients.find((c) => c.id === form.clientId);
+    const selectedClient = clients.find((c) => c.id === form.clientId);
 
-    const newItems: QuoteItem[] = form.items.map((item, idx) => ({
+    const items: QuoteItem[] = form.items.map((item, idx) => ({
       id: String(idx),
       description: item.description,
       quantity: Number(item.quantity),
@@ -138,39 +140,29 @@ export default function QuotesPage() {
     }));
 
     if (editingQuote) {
-      setQuotes((prev) =>
-        prev.map((q) =>
-          q.id === editingQuote.id
-            ? {
-                ...q,
-                clientId: form.clientId,
-                clientName: selectedClient?.name || q.clientName,
-                status: form.status,
-                items: newItems,
-                subtotal,
-                tax,
-                total,
-                notes: form.notes,
-                validUntil: form.validUntil,
-              }
-            : q,
-        ),
-      );
-    } else {
-      const newQuote: Quote = {
-        id: String(Date.now()),
+      update(editingQuote.id, {
         clientId: form.clientId,
-        clientName: selectedClient?.name || "",
+        clientName: selectedClient?.name || editingQuote.clientName,
         status: form.status,
-        items: newItems,
+        items,
         subtotal,
         tax,
         total,
         notes: form.notes,
         validUntil: form.validUntil,
-        createdAt: new Date().toISOString().split("T")[0],
-      };
-      setQuotes((prev) => [newQuote, ...prev]);
+      });
+    } else {
+      create({
+        clientId: form.clientId,
+        clientName: selectedClient?.name || "",
+        status: form.status,
+        notes: form.notes,
+        validUntil: form.validUntil,
+        items,
+        subtotal,
+        tax,
+        total,
+      });
     }
 
     setModalOpen(false);
@@ -178,8 +170,18 @@ export default function QuotesPage() {
 
   function handleDelete(id: string) {
     if (confirm("Tem certeza que deseja excluir este orçamento?")) {
-      setQuotes((prev) => prev.filter((q) => q.id !== id));
+      remove(id);
     }
+  }
+
+  if (loading) {
+    return (
+      <div className="relative min-h-screen bg-[#050914]">
+        <div className="flex items-center justify-center h-96">
+          <div className="h-8 w-8 animate-spin rounded-full border-2 border-white/20 border-t-[#fd6401]" />
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -384,7 +386,7 @@ export default function QuotesPage() {
         <Select
           id="client"
           label="Cliente"
-          options={mockClients.map((c) => ({
+          options={clients.map((c) => ({
             value: c.id,
             label: c.name,
           }))}

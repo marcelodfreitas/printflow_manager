@@ -18,8 +18,8 @@ import {
 import { Modal } from "@/components/ui/Modal";
 import { StatusBadge } from "@/components/ui/Badge";
 import type { Printer } from "@/types";
-import { mockPrinters } from "@/data/mock";
 import { formatDate } from "@/lib/utils";
+import { usePrinters } from "@/hooks/usePrinters";
 
 const printerTypes = [
   { value: "FDM", label: "FDM" },
@@ -36,7 +36,7 @@ const printerStatuses = [
 ];
 
 export default function PrintersPage() {
-  const [printers, setPrinters] = useState<Printer[]>(mockPrinters);
+  const { printers, loading, create, update, remove } = usePrinters();
   const [search, setSearch] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
   const [editingPrinter, setEditingPrinter] = useState<Printer | null>(null);
@@ -91,7 +91,7 @@ export default function PrintersPage() {
     setModalOpen(true);
   }
 
-  function handleSave(e: React.FormEvent) {
+  async function handleSave(e: React.FormEvent) {
     e.preventDefault();
 
     const data = {
@@ -104,31 +104,21 @@ export default function PrintersPage() {
       buildVolume: form.buildVolume,
       powerConsumption: form.powerConsumption ? Number(form.powerConsumption) : undefined,
       costPerHour: Number(form.costPerHour) || 0,
+      lastMaintenance: new Date().toISOString().split("T")[0],
     };
 
     if (editingPrinter) {
-      setPrinters((prev) =>
-        prev.map((p) =>
-          p.id === editingPrinter.id
-            ? { ...p, ...data, lastMaintenance: p.lastMaintenance }
-            : p,
-        ),
-      );
+      await update(editingPrinter.id, data);
     } else {
-      const newPrinter: Printer = {
-        id: String(Date.now()),
-        ...data,
-        lastMaintenance: new Date().toISOString().split("T")[0],
-      };
-      setPrinters((prev) => [newPrinter, ...prev]);
+      await create(data);
     }
 
     setModalOpen(false);
   }
 
-  function handleDelete(id: string) {
+  async function handleDelete(id: string) {
     if (confirm("Tem certeza que deseja excluir esta impressora?")) {
-      setPrinters((prev) => prev.filter((p) => p.id !== id));
+      await remove(id);
     }
   }
 
@@ -141,7 +131,12 @@ export default function PrintersPage() {
         className="border-b border-white/10 bg-white/[0.02] backdrop-blur-xl text-white"
       />
 
-      <div className="p-6 space-y-6">
+      {loading ? (
+        <div className="p-6 flex items-center justify-center text-white/50 min-h-[200px]">
+          Carregando...
+        </div>
+      ) : (
+        <div className="p-6 space-y-6">
         <Card className="border border-white/10 bg-white/[0.03] backdrop-blur-2xl shadow-2xl shadow-black/40">
           <CardHeader className="border-b border-white/5">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -282,6 +277,7 @@ focus:ring-[#fd6401]/30
           </CardContent>
         </Card>
       </div>
+      )}
 
       <Modal
         isOpen={modalOpen}

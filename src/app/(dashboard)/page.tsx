@@ -12,11 +12,33 @@ import { StatsCard } from "@/components/ui/StatsCard";
 import { Card, CardContent, CardHeader } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Header } from "@/components/layout/Header";
-import { mockDashboardStats, mockOrders } from "@/data/mock";
+import { useClients } from "@/hooks/useClients";
+import { usePrinters } from "@/hooks/usePrinters";
+import { useOrders } from "@/hooks/useOrders";
+import { useFilaments } from "@/hooks/useFilaments";
 import { formatCurrency, translateStatus } from "@/lib/utils";
 
 export default function DashboardPage() {
-  const stats = mockDashboardStats;
+  const { clients, loading: loadingClients } = useClients();
+  const { printers, loading: loadingPrinters } = usePrinters();
+  const { orders, loading: loadingOrders } = useOrders();
+  const { filaments, loading: loadingFilaments } = useFilaments();
+
+  const stats = {
+    totalClients: clients.length,
+    totalPrinters: printers.length,
+    activePrinters: printers.filter((p) => p.status === "active").length,
+    totalOrders: orders.length,
+    pendingOrders: orders.filter((o) => o.status === "pending" || o.status === "approved").length,
+    monthlyRevenue: orders
+      .filter((o) => o.status === "completed" || o.status === "delivered")
+      .reduce((sum, o) => sum + o.price, 0),
+    filamentStock: filaments.reduce((sum, f) => sum + f.quantity, 0),
+  };
+
+  if (loadingClients || loadingPrinters || loadingOrders || loadingFilaments) {
+    return <div>Carregando...</div>;
+  }
 
   return (
     <div className="relative min-h-screen bg-[#050914]">
@@ -115,7 +137,7 @@ export default function DashboardPage() {
               </CardHeader>
 
               <CardContent className="divide-y divide-white/5">
-                {mockOrders.slice(0, 5).map((order) => (
+                {orders.slice(0, 5).map((order) => (
                   <div
                     key={order.id}
                     className="flex items-center justify-between py-2"
