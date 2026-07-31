@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Ubuntu } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/contexts/AuthContext";
@@ -11,6 +11,10 @@ const ubuntu = Ubuntu({
 export const metadata: Metadata = {
   title: "PrintFlow Manager - Gerenciamento de Impressão 3D",
   description: "Sistema de gerenciamento para serviços de impressão 3D",
+};
+
+export const viewport: Viewport = {
+  themeColor: "#050914",
 };
 
 export default function RootLayout({
