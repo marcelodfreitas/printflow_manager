@@ -8,7 +8,7 @@ interface TableProps {
 
 export function Table({ className, children }: TableProps) {
   return (
-    <div className="overflow-x-auto">
+    <div className="mobile-table overflow-x-auto overscroll-x-contain rounded-b-xl">
       <table className={cn("min-w-full divide-y divide-white/10", className)}>
         {children}
       </table>
@@ -51,7 +51,7 @@ export function TableHeadCell({ className, children, colSpan }: TableHeadCellPro
     <th
       colSpan={colSpan}
       className={cn(
-        "px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-white/40",
+        "px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-white/40 sm:px-6",
         className
       )}
     >
@@ -70,7 +70,10 @@ export function TableCell({ className, children, colSpan }: TableCellProps) {
   return (
     <td
       colSpan={colSpan}
-      className={cn("whitespace-nowrap px-6 py-4 text-sm text-white/70", className)}
+      className={cn(
+        "min-w-0 px-4 py-3 text-sm text-white/70 sm:px-6 sm:py-4",
+        className
+      )}
     >
       {children}
     </td>

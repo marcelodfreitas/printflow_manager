@@ -44,6 +44,8 @@ export function useQuotes() {
   useEffect(() => { fetchQuotes(); }, [fetchQuotes]);
 
   async function create(input: {
+    productId?: string;
+    productName?: string;
     clientId: string;
     clientName: string;
     status: Quote["status"];
@@ -61,6 +63,8 @@ export function useQuotes() {
       const { data: quoteData } = await supabase
         .from("quotes")
         .insert({
+          product_id: input.productId || null,
+          product_name: input.productName || null,
           client_id: clientId,
           client_name: clientName,
           status,
@@ -103,6 +107,8 @@ export function useQuotes() {
   async function update(
     id: string,
     input: {
+      productId?: string;
+      productName?: string;
       clientId?: string;
       clientName?: string;
       status?: Quote["status"];
@@ -116,6 +122,8 @@ export function useQuotes() {
   ) {
     try {
       const updateData: Record<string, unknown> = {};
+      if (input.productId !== undefined) updateData.product_id = input.productId;
+      if (input.productName !== undefined) updateData.product_name = input.productName;
       if (input.clientId !== undefined) updateData.client_id = input.clientId;
       if (input.clientName !== undefined) updateData.client_name = input.clientName;
       if (input.status !== undefined) updateData.status = input.status;

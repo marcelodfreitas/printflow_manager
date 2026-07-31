@@ -140,7 +140,7 @@ export default function CalculadoraPage() {
         className="border-b border-white/10 bg-white/[0.02] backdrop-blur-xl text-white"
       />
 
-      <div className="p-6 space-y-6">
+      <div className="space-y-5 px-4 py-5 sm:p-6 sm:space-y-6">
         {/* Tabs */}
         <div className="flex gap-1 rounded-xl border border-white/10 bg-[#0A1120] p-1 w-fit">
           {tabs.map((tab) => (

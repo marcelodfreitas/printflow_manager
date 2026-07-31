@@ -157,6 +157,9 @@ export const mockFilaments: Filament[] = [
 export const mockOrders: Order[] = [
   {
     id: "1",
+    orderNumber: 1,
+    productId: "1",
+    productName: "Vaso Geométrico",
     clientId: "1",
     clientName: "João Silva",
     printerId: "1",
@@ -176,6 +179,9 @@ export const mockOrders: Order[] = [
   },
   {
     id: "2",
+    orderNumber: 2,
+    productId: "2",
+    productName: "Suporte de Cabo",
     clientId: "2",
     clientName: "Maria Souza",
     printerId: "2",
@@ -194,6 +200,9 @@ export const mockOrders: Order[] = [
   },
   {
     id: "3",
+    orderNumber: 3,
+    productId: "3",
+    productName: "Protótipo Engrenagem",
     clientId: "1",
     clientName: "João Silva",
     printerId: "3",
@@ -212,6 +221,9 @@ export const mockOrders: Order[] = [
   },
   {
     id: "4",
+    orderNumber: 4,
+    productId: "4",
+    productName: "Capinha de Celular",
     clientId: "3",
     clientName: "Carlos Pereira",
     printerId: "2",
@@ -231,6 +243,7 @@ export const mockOrders: Order[] = [
   },
   {
     id: "5",
+    orderNumber: 5,
     clientId: "2",
     clientName: "Maria Souza",
     printerId: "1",
@@ -251,6 +264,9 @@ export const mockOrders: Order[] = [
 export const mockQuotes: Quote[] = [
   {
     id: "1",
+    quoteNumber: 1,
+    productId: "5",
+    productName: "Suporte de Monitor",
     clientId: "1",
     clientName: "João Silva",
     status: "approved",
@@ -271,6 +287,9 @@ export const mockQuotes: Quote[] = [
   },
   {
     id: "2",
+    quoteNumber: 2,
+    productId: "3",
+    productName: "Engrenagem Personalizada",
     clientId: "3",
     clientName: "Carlos Pereira",
     status: "draft",
@@ -298,6 +317,9 @@ export const mockQuotes: Quote[] = [
   },
   {
     id: "3",
+    quoteNumber: 3,
+    productId: "1",
+    productName: "Vaso Geométrico",
     clientId: "2",
     clientName: "Maria Souza",
     status: "sent",

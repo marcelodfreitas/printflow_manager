@@ -41,6 +41,15 @@ export interface Filament {
   weight: number;
   quantity: number;
   costPerKg: number;
+  remainingWeight?: number;
+}
+
+export interface Product {
+  id: string;
+  name: string;
+  description?: string;
+  price: number;
+  createdAt: string;
 }
 
 export type OrderStatus =
@@ -54,6 +63,9 @@ export type OrderStatus =
 
 export interface Order {
   id: string;
+  orderNumber?: number;
+  productId?: string;
+  productName?: string;
   clientId: string;
   clientName: string;
   printerId: string;
@@ -76,6 +88,9 @@ export type QuoteStatus = "draft" | "sent" | "approved" | "rejected" | "converte
 
 export interface Quote {
   id: string;
+  quoteNumber?: number;
+  productId?: string;
+  productName?: string;
   clientId: string;
   clientName: string;
   status: QuoteStatus;
@@ -104,4 +119,16 @@ export interface DashboardStats {
   pendingOrders: number;
   monthlyRevenue: number;
   filamentStock: number;
+}
+
+export type NotificationType = "order" | "maintenance" | "system";
+
+export interface AppNotification {
+  id: string;
+  type: NotificationType;
+  referenceId?: string;
+  title: string;
+  description?: string;
+  read: boolean;
+  createdAt: string;
 }

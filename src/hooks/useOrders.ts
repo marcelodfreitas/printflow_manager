@@ -32,11 +32,15 @@ export function useOrders() {
     try {
       const userId = await getUserId();
       if (!userId) return null;
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from("orders")
         .insert({ ...toSnakeCase(input as unknown as Record<string, unknown>), user_id: userId })
         .select()
         .single();
+      if (error) {
+        console.error("Erro ao criar pedido:", error);
+        return null;
+      }
       if (data) {
         const created = toCamelCase<Order>(data);
         setOrders((prev) => [created, ...prev]);
@@ -50,12 +54,16 @@ export function useOrders() {
 
   async function update(id: string, input: Partial<Order>) {
     try {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from("orders")
         .update(toSnakeCase(input as unknown as Record<string, unknown>))
         .eq("id", id)
         .select()
         .single();
+      if (error) {
+        console.error("Erro ao atualizar pedido:", error);
+        return null;
+      }
       if (data) {
         const updated = toCamelCase<Order>(data);
         setOrders((prev) => prev.map((o) => (o.id === id ? updated : o)));

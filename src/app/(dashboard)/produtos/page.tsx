@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Plus, Search, Mail, Phone, MapPin } from "lucide-react";
+import { Plus, Search } from "lucide-react";
 import { Header } from "@/components/layout/Header";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
@@ -16,61 +16,65 @@ import {
   TableRow,
 } from "@/components/ui/Table";
 import { Modal } from "@/components/ui/Modal";
-import type { Client } from "@/types";
-import { useClients } from "@/hooks/useClients";
-import { formatDate } from "@/lib/utils";
+import type { Product } from "@/types";
+import { useProducts } from "@/hooks/useProducts";
+import { formatCurrency, formatDate } from "@/lib/utils";
 
-export default function ClientPage() {
-  const { clients, loading, create, update, remove } = useClients();
+export default function ProductsPage() {
+  const { products, loading, create, update, remove } = useProducts();
   const [search, setSearch] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
-  const [editingClient, setEditingClient] = useState<Client | null>(null);
+  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [form, setForm] = useState({
     name: "",
-    email: "",
-    phone: "",
-    document: "",
-    address: "",
+    description: "",
+    price: "",
   });
 
-  const filtered = clients.filter(
-    (c) =>
-      c.name.toLowerCase().includes(search.toLowerCase()) ||
-      c.email.toLowerCase().includes(search.toLowerCase())
+  const filtered = products.filter(
+    (p) =>
+      p.name.toLowerCase().includes(search.toLowerCase()) ||
+      (p.description ?? "").toLowerCase().includes(search.toLowerCase()),
   );
 
   function openCreate() {
-    setEditingClient(null);
-    setForm({ name: "", email: "", phone: "", document: "", address: "" });
+    setEditingProduct(null);
+    setForm({ name: "", description: "", price: "" });
     setModalOpen(true);
   }
 
-  function openEdit(client: Client) {
-    setEditingClient(client);
+  function openEdit(product: Product) {
+    setEditingProduct(product);
     setForm({
-      name: client.name,
-      email: client.email,
-      phone: client.phone,
-      document: client.document,
-      address: client.address,
+      name: product.name,
+      description: product.description || "",
+      price: String(product.price),
     });
     setModalOpen(true);
   }
 
-  function handleSave(e: React.FormEvent) {
+  async function handleSave(e: React.FormEvent) {
     e.preventDefault();
 
-    if (editingClient) {
-      update(editingClient.id, form);
+    if (!form.name) return;
+
+    const data = {
+      name: form.name,
+      description: form.description || undefined,
+      price: Number(form.price) || 0,
+    };
+
+    if (editingProduct) {
+      await update(editingProduct.id, data);
     } else {
-      create(form);
+      await create(data);
     }
 
     setModalOpen(false);
   }
 
   function handleDelete(id: string) {
-    if (confirm("Tem certeza que deseja excluir este cliente?")) {
+    if (confirm("Tem certeza que deseja excluir este produto?")) {
       remove(id);
     }
   }
@@ -80,7 +84,7 @@ export default function ClientPage() {
       <div className="pointer-events-none fixed -bottom-40 -right-40 h-[500px] w-[500px] rounded-full bg-[#071124]/60 blur-[120px]" />
       <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(255,255,255,0.06)_1px,transparent_0)] bg-[size:32px_32px]" />
       <Header
-        title="Clientes"
+        title="Produtos"
         className="border-b border-white/10 bg-white/[0.02] backdrop-blur-xl text-white"
       />
 
@@ -99,7 +103,7 @@ export default function ClientPage() {
                   <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/30" />
                   <input
                     type="text"
-                    placeholder="Buscar clientes..."
+                    placeholder="Buscar produtos..."
                     className="w-full rounded-lg border border-white/10 bg-white/5 py-2 pl-10 pr-4 text-sm text-white placeholder:text-white/30 focus:border-[#fd6401]/50 focus:outline-none focus:ring-1 focus:ring-[#fd6401]/30"
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
@@ -110,7 +114,7 @@ export default function ClientPage() {
                   className="bg-gradient-to-r from-[#071124] to-[#0d1a35] text-white shadow-lg shadow-black/30 ring-1 ring-white/10 transition-all duration-300 hover:shadow-[#fd6401]/20 hover:ring-[#fd6401]/30"
                 >
                   <Plus className="h-4 w-4" />
-                  Novo Cliente
+                  Novo Produto
                 </Button>
               </div>
             </CardHeader>
@@ -119,16 +123,13 @@ export default function ClientPage() {
                 <TableHead className="border-b border-white/10">
                   <TableRow>
                     <TableHeadCell className="text-center text-white/50">
-                      Nome
+                      Produto
                     </TableHeadCell>
                     <TableHeadCell className="text-center text-white/50">
-                      Contato
+                      Descrição
                     </TableHeadCell>
                     <TableHeadCell className="text-center text-white/50">
-                      Documento
-                    </TableHeadCell>
-                    <TableHeadCell className="text-center text-white/50">
-                      Endereço
+                      Preço
                     </TableHeadCell>
                     <TableHeadCell className="text-center text-white/50">
                       Cadastro
@@ -139,45 +140,29 @@ export default function ClientPage() {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {filtered.map((client) => (
+                  {filtered.map((product) => (
                     <TableRow
-                      key={client.id}
+                      key={product.id}
                       className="border-b border-white/5 transition-colors hover:bg-white/[0.02] last:border-0"
                     >
                       <TableCell className="text-center">
-                        <p className="font-medium text-white">{client.name}</p>
+                        <p className="font-medium text-white">{product.name}</p>
                       </TableCell>
-                      <TableCell className="text-center">
-                        <div className="flex flex-col items-center gap-1">
-                          <span className="flex items-center gap-1 text-xs text-white/40">
-                            <Mail className="h-3 w-3" />
-                            {client.email}
-                          </span>
-                          <span className="flex items-center justify-center gap-1 text-xs text-white/40">
-                            {" "}
-                            <Phone className="h-3 w-3" />
-                            {client.phone}
-                          </span>
-                        </div>
+                      <TableCell className="text-center text-white/60">
+                        {product.description || "—"}
                       </TableCell>
-                      <TableCell className="text-center text-white/70">
-                        {client.document}
-                      </TableCell>
-                      <TableCell className="text-center">
-                        <span className="flex items-center justify-center gap-1 text-xs text-white/40">
-                          <MapPin className="h-3 w-3" />
-                          {client.address}
-                        </span>
+                      <TableCell className="text-center font-medium text-white">
+                        {formatCurrency(product.price)}
                       </TableCell>
                       <TableCell className="text-center text-white/50">
-                        {formatDate(client.createdAt)}
+                        {formatDate(product.createdAt)}
                       </TableCell>
                       <TableCell className="text-center">
                         <div className="flex items-center justify-center gap-1.5">
                           <Button
                             variant="ghost"
                             size="sm"
-                            onClick={() => openEdit(client)}
+                            onClick={() => openEdit(product)}
                             className="
       h-8
       w-8
@@ -199,7 +184,7 @@ export default function ClientPage() {
                           <Button
                             variant="ghost"
                             size="sm"
-                            onClick={() => handleDelete(client.id)}
+                            onClick={() => handleDelete(product.id)}
                             className="
       h-8
       w-8
@@ -223,9 +208,9 @@ export default function ClientPage() {
                   ))}
                   {filtered.length === 0 && (
                     <TableRow>
-                      <TableCell colSpan={6}>
+                      <TableCell colSpan={5}>
                         <div className="py-8 text-center text-sm text-white/40">
-                          Nenhum cliente encontrado
+                          Nenhum produto encontrado
                         </div>
                       </TableCell>
                     </TableRow>
@@ -240,7 +225,7 @@ export default function ClientPage() {
       <Modal
         isOpen={modalOpen}
         onClose={() => setModalOpen(false)}
-        title={editingClient ? "Editar Cliente" : "Novo Cliente"}
+        title={editingProduct ? "Editar Produto" : "Novo Produto"}
         className="border border-white/10 bg-[#0a1120]/95 backdrop-blur-2xl text-white"
       >
         <form onSubmit={handleSave} className="space-y-4">
@@ -252,38 +237,20 @@ export default function ClientPage() {
             required
             className="bg-white/5 border-white/10 text-white placeholder:text-white/30 focus:border-[#fd6401]/50 focus:ring-[#fd6401]/20"
           />
-          <div className="grid gap-4 sm:grid-cols-2">
-            <Input
-              id="email"
-              label="Email"
-              type="email"
-              value={form.email}
-              onChange={(e) => setForm({ ...form, email: e.target.value })}
-              required
-              className="bg-white/5 border-white/10 text-white placeholder:text-white/30 focus:border-[#fd6401]/50 focus:ring-[#fd6401]/20"
-            />
-            <Input
-              id="phone"
-              label="Telefone"
-              value={form.phone}
-              onChange={(e) => setForm({ ...form, phone: e.target.value })}
-              required
-              className="bg-white/5 border-white/10 text-white placeholder:text-white/30 focus:border-[#fd6401]/50 focus:ring-[#fd6401]/20"
-            />
-          </div>
           <Input
-            id="document"
-            label="CPF/CNPJ"
-            value={form.document}
-            onChange={(e) => setForm({ ...form, document: e.target.value })}
-            required
+            id="description"
+            label="Descrição"
+            value={form.description}
+            onChange={(e) => setForm({ ...form, description: e.target.value })}
             className="bg-white/5 border-white/10 text-white placeholder:text-white/30 focus:border-[#fd6401]/50 focus:ring-[#fd6401]/20"
           />
           <Input
-            id="address"
-            label="Endereço"
-            value={form.address}
-            onChange={(e) => setForm({ ...form, address: e.target.value })}
+            id="price"
+            label="Preço (R$)"
+            type="number"
+            step="0.01"
+            value={form.price}
+            onChange={(e) => setForm({ ...form, price: e.target.value })}
             required
             className="bg-white/5 border-white/10 text-white placeholder:text-white/30 focus:border-[#fd6401]/50 focus:ring-[#fd6401]/20"
           />
@@ -300,7 +267,7 @@ export default function ClientPage() {
               type="submit"
               className="bg-gradient-to-r from-[#071124] to-[#0d1a35] text-white ring-1 ring-white/10 hover:ring-[#fd6401]/30"
             >
-              {editingClient ? "Salvar" : "Criar"}
+              {editingProduct ? "Salvar" : "Criar"}
             </Button>
           </div>
         </form>

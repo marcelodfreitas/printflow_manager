@@ -43,9 +43,9 @@ export function Modal({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
+    <div className="fixed inset-0 z-50 flex items-end justify-center p-0 sm:items-center sm:p-4">
       <div
-        className="fixed inset-0 bg-black/50 transition-opacity"
+        className="fixed inset-0 bg-black/60 transition-opacity"
         onClick={onClose}
       />
       <div
@@ -53,23 +53,28 @@ export function Modal({
   `
   relative
   z-10
-  mx-4
+  mx-0
   w-full
-  rounded-2xl
+  max-h-[92dvh]
+  overflow-y-auto
+  rounded-t-2xl
   border
   border-white/10
   bg-[#0a1120]/95
   backdrop-blur-2xl
-  p-6
+  p-4
   shadow-2xl
   shadow-black/40
   text-white
+  sm:mx-4
+  sm:rounded-2xl
+  sm:p-6
   `,
   sizeClasses[size],
   className
 )}
       >
-        <div className="mb-4 flex items-center justify-between">
+        <div className="sticky -top-4 z-10 mb-4 flex items-center justify-between border-b border-white/10 bg-[#0a1120]/95 pb-3 pt-1 backdrop-blur-2xl sm:static sm:border-b-0 sm:bg-transparent sm:pb-0 sm:pt-0">
           <h2 className="text-lg font-semibold text-inherit">{title}</h2>
           <button
             onClick={onClose}

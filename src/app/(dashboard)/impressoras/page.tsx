@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Plus, Search, Wrench } from "lucide-react";
+import { Plus, Search, Trash2, Pencil } from "lucide-react";
 import { Header } from "@/components/layout/Header";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
@@ -102,7 +102,9 @@ export default function PrintersPage() {
       status: form.status as Printer["status"],
       nozzleSize: form.nozzleSize ? Number(form.nozzleSize) : undefined,
       buildVolume: form.buildVolume,
-      powerConsumption: form.powerConsumption ? Number(form.powerConsumption) : undefined,
+      powerConsumption: form.powerConsumption
+        ? Number(form.powerConsumption)
+        : undefined,
       costPerHour: Number(form.costPerHour) || 0,
       lastMaintenance: new Date().toISOString().split("T")[0],
     };
@@ -124,159 +126,202 @@ export default function PrintersPage() {
 
   return (
     <div className="relative min-h-screen bg-[#050914]">
-  <div className="pointer-events-none fixed -bottom-40 -right-40 h-[500px] w-[500px] rounded-full bg-[#071124]/60 blur-[120px]" />
-  <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(255,255,255,0.06)_1px,transparent_0)] bg-[size:32px_32px]" />
+      <div className="pointer-events-none fixed -bottom-40 -right-40 h-[500px] w-[500px] rounded-full bg-[#071124]/60 blur-[120px]" />
+      <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(255,255,255,0.06)_1px,transparent_0)] bg-[size:32px_32px]" />
       <Header
         title="Impressoras"
         className="border-b border-white/10 bg-white/[0.02] backdrop-blur-xl text-white"
       />
 
       {loading ? (
-        <div className="p-6 flex items-center justify-center text-white/50 min-h-[200px]">
+        <div className="flex min-h-[200px] items-center justify-center px-4 py-5 text-white/50 sm:p-6">
           Carregando...
         </div>
       ) : (
-        <div className="p-6 space-y-6">
-        <Card className="border border-white/10 bg-white/[0.03] backdrop-blur-2xl shadow-2xl shadow-black/40">
-          <CardHeader className="border-b border-white/5">
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-              <div className="relative flex-1 max-w-xs">
-                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/30" />{" "}
-                <input
-                  type="text"
-                  placeholder="Buscar impressoras..."
+        <div className="space-y-5 px-4 py-5 sm:p-6 sm:space-y-6">
+          <Card className="border border-white/10 bg-white/[0.03] backdrop-blur-2xl shadow-2xl shadow-black/40">
+            <CardHeader className="border-b border-white/5">
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                <div className="relative w-full flex-1 sm:max-w-xs">
+                  <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/30" />{" "}
+                  <input
+                    type="text"
+                    placeholder="Buscar impressoras..."
+                    className="
+                            w-full
+                            rounded-lg
+                            border
+                            border-white/10
+                            bg-white/5
+                            py-2
+                            pl-10
+                            pr-4
+                            text-sm
+                            text-white
+                            placeholder:text-white/30
+                            focus:border-[#fd6401]/50
+                            focus:outline-none
+                            focus:ring-1
+                            focus:ring-[#fd6401]/30
+                            "
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                  />
+                </div>
+                <Button
+                  onClick={openCreate}
                   className="
-w-full
-rounded-lg
-border
-border-white/10
-bg-white/5
-py-2
-pl-10
-pr-4
-text-sm
-text-white
-placeholder:text-white/30
-focus:border-[#fd6401]/50
-focus:outline-none
-focus:ring-1
-focus:ring-[#fd6401]/30
-"
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                />
-              </div>
-              <Button
-                onClick={openCreate}
-                className="
-    bg-gradient-to-r
-    from-[#071124]
-    to-[#0d1a35]
-    text-white
-    shadow-lg
-    shadow-black/30
-    ring-1
-    ring-white/10
-    transition-all
-    duration-300
-    hover:shadow-[#fd6401]/20
-    hover:ring-[#fd6401]/30
-  "
-              >
-                <Plus className="h-4 w-4" />
-                Nova Impressora
-              </Button>
-            </div>
-          </CardHeader>
-          <CardContent className="p-0">
-            <Table>
-              <TableHead className="border-b border-white/10">
-                <TableRow
-                  className="
-    border-b
-    border-white/5
-    transition-colors
-    hover:bg-white/[0.02]
-    last:border-0
-  "
+                          bg-gradient-to-r
+                          from-[#071124]
+                          to-[#0d1a35]
+                          text-white
+                          shadow-lg
+                          shadow-black/30
+                          ring-1
+                          ring-white/10
+                          transition-all
+                          duration-300
+                          hover:shadow-[#fd6401]/20
+                          hover:ring-[#fd6401]/30
+                        "
                 >
-                  <TableHeadCell>Nome / Modelo</TableHeadCell>
-                  <TableHeadCell>Fabricante</TableHeadCell>
-                  <TableHeadCell>Tipo</TableHeadCell>
-                  <TableHeadCell>Status</TableHeadCell>
-                  <TableHeadCell>Bico</TableHeadCell>
-                  <TableHeadCell>Volume</TableHeadCell>
-                  <TableHeadCell>Custo/h</TableHeadCell>
-                  <TableHeadCell>Última Manutenção</TableHeadCell>
-                  <TableHeadCell className="text-center text-white/50">
-                    Ações
-                  </TableHeadCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {filtered.map((printer) => (
-                  <TableRow key={printer.id}>
-                    <TableCell>
-                      <p className="font-medium text-white">{printer.name}</p>
-                      <p className="text-xs text-gray-500">{printer.model}</p>
-                    </TableCell>
-                    <TableCell className="text-white/70">
-                      {printer.manufacturer}
-                    </TableCell>
-                    <TableCell className="text-white/70">
-                      {printer.type}
-                    </TableCell>
-                    <TableCell className="text-white/70">
-                      <StatusBadge status={printer.status} />
-                    </TableCell>
-                    <TableCell className="text-white/70">
-                      {printer.nozzleSize ? `${printer.nozzleSize}mm` : "-"}
-                    </TableCell>
-                    <TableCell className="text-xs text-white/70">
-                      {printer.buildVolume}
-                    </TableCell>
-                    <TableCell className="text-white/70">
-                      R$ {printer.costPerHour.toFixed(2)}
-                    </TableCell>
-                    <TableCell className="text-white/70">
-                      {formatDate(printer.lastMaintenance)}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex justify-end gap-2">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="text-white/60 hover:text-white hover:bg-white/5"
-                          onClick={() => openEdit(printer)}
-                        >
-                          Editar
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="text-red-400/80 hover:text-red-400 hover:bg-red-500/10"
-                          onClick={() => handleDelete(printer.id)}
-                        >
-                          Excluir
-                        </Button>
-                      </div>
-                    </TableCell>
+                  <Plus className="h-4 w-4" />
+                  Nova Impressora
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent className="p-0">
+              <Table>
+                <TableHead className="border-b border-white/10">
+                  <TableRow
+                    className="
+                            border-b
+                            border-white/5
+                            transition-colors
+                            hover:bg-white/[0.02]
+                            last:border-0
+                          "
+                  >
+                    <TableHeadCell className="text-center text-white/50">
+                      Nome / Modelo
+                    </TableHeadCell>
+                    <TableHeadCell className="text-center text-white/50">
+                      Fabricante
+                    </TableHeadCell>
+                    <TableHeadCell className="text-center text-white/50">
+                      Tipo
+                    </TableHeadCell>
+                    <TableHeadCell className="text-center text-white/50">
+                      Status
+                    </TableHeadCell>
+                    <TableHeadCell className="text-center text-white/50">
+                      Bico
+                    </TableHeadCell>
+                    <TableHeadCell className="text-center text-white/50">
+                      Volume
+                    </TableHeadCell>
+                    <TableHeadCell className="text-center text-white/50">
+                      Custo/h
+                    </TableHeadCell>
+                    <TableHeadCell className="text-center text-white/50">
+                      Última Manutenção
+                    </TableHeadCell>
+                    <TableHeadCell className="text-center text-white/50">
+                      Ações
+                    </TableHeadCell>
                   </TableRow>
-                ))}
-                {filtered.length === 0 && (
-                  <TableRow>
-                    <TableCell colSpan={9}>
-                      <div className="py-8 text-center text-sm text-white/40">
-                        Nenhuma impressora encontrada
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table>
-          </CardContent>
-        </Card>
-      </div>
+                </TableHead>
+                <TableBody>
+                  {filtered.map((printer) => (
+                    <TableRow key={printer.id}>
+                      <TableCell className="text-center">
+                        <p className="font-medium text-white">{printer.name}</p>
+                        <p className="text-xs text-gray-500">{printer.model}</p>
+                      </TableCell>
+                      <TableCell className="text-center text-white/70">
+                        {printer.manufacturer}
+                      </TableCell>
+                      <TableCell className="text-center text-white/70">
+                        {printer.type}
+                      </TableCell>
+                      <TableCell className="text-center text-white/70">
+                        <StatusBadge status={printer.status} />
+                      </TableCell>
+                      <TableCell className="text-center text-white/70">
+                        {printer.nozzleSize ? `${printer.nozzleSize}mm` : "-"}
+                      </TableCell>
+                      <TableCell className="text-center text-xs text-white/70">
+                        {printer.buildVolume}
+                      </TableCell>
+                      <TableCell className="text-center text-white/70">
+                        R$ {printer.costPerHour.toFixed(2)}
+                      </TableCell>
+                      <TableCell className="text-center text-white/70">
+                        {formatDate(printer.lastMaintenance)}
+                      </TableCell>
+                      <TableCell className="text-center">
+                        <div className="flex items-center justify-center gap-1.5">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => openEdit(printer)}
+                            className="
+      h-8
+      w-8
+      rounded-lg
+      border
+      border-white/10
+      bg-white/[0.03]
+      text-white/60
+      transition-all
+      duration-200
+      hover:border-[#fd6401]/40
+      hover:bg-[#fd6401]/10
+      hover:text-[#fd6401]
+    "
+                          >
+                            <Pencil className="h-3.5 w-3.5" />
+                          </Button>
+
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleDelete(printer.id)}
+                            className="
+      h-8
+      w-8
+      rounded-lg
+      border
+      border-white/10
+      bg-white/[0.03]
+      text-white/60
+      transition-all
+      duration-200
+      hover:border-red-500/40
+      hover:bg-red-500/10
+      hover:text-red-400
+    "
+                          >
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                  {filtered.length === 0 && (
+                    <TableRow>
+                      <TableCell colSpan={9}>
+                        <div className="py-8 text-center text-sm text-white/40">
+                          Nenhuma impressora encontrada
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
+        </div>
       )}
 
       <Modal
@@ -293,7 +338,7 @@ focus:ring-[#fd6401]/30
         size="lg"
       >
         <form onSubmit={handleSave} className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid gap-4 sm:grid-cols-2">
             <Input
               id="name"
               label="Nome"
@@ -325,7 +370,7 @@ focus:ring-[#fd6401]/30
               required
             />
           </div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid gap-4 sm:grid-cols-2">
             <Input
               id="manufacturer"
               label="Fabricante"
@@ -361,7 +406,7 @@ focus:ring-[#fd6401]/30
               }
             />
           </div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid gap-4 sm:grid-cols-2">
             <Select
               id="status"
               label="Status"
@@ -416,7 +461,7 @@ focus:ring-[#fd6401]/30
             onChange={(e) => setForm({ ...form, buildVolume: e.target.value })}
             required
           />
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid gap-4 sm:grid-cols-2">
             <Input
               id="powerConsumption"
               label="Consumo (W)"
@@ -456,7 +501,7 @@ focus:ring-[#fd6401]/30
                         "
             />
           </div>
-          <div className="flex justify-end gap-3 pt-2">
+          <div className="flex flex-col-reverse gap-3 pt-2 sm:flex-row sm:justify-end">
             <Button
               type="button"
               variant="secondary"

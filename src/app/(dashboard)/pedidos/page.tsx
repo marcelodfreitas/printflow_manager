@@ -15,35 +15,47 @@ import {
   TableHeadCell,
   TableRow,
 } from "@/components/ui/Table";
+import { Pencil, Trash2 } from "lucide-react";
 import { Modal } from "@/components/ui/Modal";
 import { StatusBadge } from "@/components/ui/Badge";
 import type { Order } from "@/types";
 import { useOrders } from "@/hooks/useOrders";
 import { useClients } from "@/hooks/useClients";
+import { useProducts } from "@/hooks/useProducts";
 import { usePrinters } from "@/hooks/usePrinters";
 import { useFilaments } from "@/hooks/useFilaments";
-import { formatCurrency, formatDate } from "@/lib/utils";
+import { formatCurrency, formatDate, translateStatus } from "@/lib/utils";
+import { createNotification } from "@/lib/notifications";
 
 const orderStatuses = [
-  { value: "pending", label: "Pendente" },
-  { value: "approved", label: "Aprovado" },
-  { value: "printing", label: "Imprimindo" },
-  { value: "paused", label: "Pausado" },
-  { value: "completed", label: "Concluído" },
-  { value: "delivered", label: "Entregue" },
-  { value: "cancelled", label: "Cancelado" },
+  { value: "pending", label: "Pendente", dot: "bg-amber-400" },
+  { value: "approved", label: "Aprovado", dot: "bg-emerald-400" },
+  { value: "printing", label: "Imprimindo", dot: "bg-sky-400" },
+  { value: "paused", label: "Pausado", dot: "bg-amber-400" },
+  { value: "completed", label: "Concluído", dot: "bg-emerald-400" },
+  { value: "delivered", label: "Entregue", dot: "bg-emerald-400" },
+  { value: "cancelled", label: "Cancelado", dot: "bg-red-400" },
 ];
 
 export default function OrdersPage() {
-  const { orders, loading: ordersLoading, create, update, remove } = useOrders();
+  const {
+    orders,
+    loading: ordersLoading,
+    create,
+    update,
+    remove,
+  } = useOrders();
   const { clients } = useClients();
+  const { products } = useProducts();
   const { printers: printerOptions } = usePrinters();
-  const { filaments } = useFilaments();
+  const { filaments, adjustStock } = useFilaments();
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [modalOpen, setModalOpen] = useState(false);
   const [editingOrder, setEditingOrder] = useState<Order | null>(null);
+  const [error, setError] = useState("");
   const [form, setForm] = useState({
+    productId: "",
     clientId: "",
     printerId: "",
     filamentId: "",
@@ -59,7 +71,8 @@ export default function OrdersPage() {
   const filtered = orders.filter((o) => {
     const matchesSearch =
       o.clientName.toLowerCase().includes(search.toLowerCase()) ||
-      o.id.toLowerCase().includes(search.toLowerCase());
+      (o.productName ?? "").toLowerCase().includes(search.toLowerCase()) ||
+      String(o.orderNumber ?? "").includes(search.toLowerCase());
     const matchesStatus = statusFilter === "all" || o.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
@@ -67,6 +80,7 @@ export default function OrdersPage() {
   function openCreate() {
     setEditingOrder(null);
     setForm({
+      productId: "",
       clientId: "",
       printerId: "",
       filamentId: "",
@@ -84,6 +98,7 @@ export default function OrdersPage() {
   function openEdit(order: Order) {
     setEditingOrder(order);
     setForm({
+      productId: order.productId || "",
       clientId: order.clientId,
       printerId: order.printerId,
       filamentId: order.filamentId,
@@ -100,23 +115,35 @@ export default function OrdersPage() {
 
   async function handleSave(e: React.FormEvent) {
     e.preventDefault();
+    setError("");
 
+    if (
+      !form.productId ||
+      !form.clientId ||
+      !form.printerId ||
+      !form.filamentId
+    ) {
+      setError("Selecione produto, cliente, impressora e filamento.");
+      return;
+    }
+
+    const selectedProduct = products.find((p) => p.id === form.productId);
     const selectedClient = clients.find((c) => c.id === form.clientId);
     const selectedPrinter = printerOptions.find((p) => p.id === form.printerId);
-    const selectedFilament = filaments.find(
-      (f) => f.id === form.filamentId,
-    );
+    const selectedFilament = filaments.find((f) => f.id === form.filamentId);
 
     const filamentCost =
       (selectedFilament?.costPerKg || 0) * (Number(form.filamentGrams) / 1000);
     const cost = filamentCost;
 
     const data = {
-      clientId: form.clientId,
+      productId: form.productId || undefined,
+      productName: selectedProduct?.name || "",
+      clientId: form.clientId || undefined,
       clientName: selectedClient?.name || "",
-      printerId: form.printerId,
+      printerId: form.printerId || undefined,
       printerName: selectedPrinter?.name || "",
-      filamentId: form.filamentId,
+      filamentId: form.filamentId || undefined,
       filamentName: selectedFilament?.name || "",
       filamentColor: selectedFilament?.colorHex || "",
       status: form.status as Order["status"],
@@ -125,14 +152,66 @@ export default function OrdersPage() {
       filamentGrams: Number(form.filamentGrams),
       cost,
       price: Number(form.price),
-      notes: form.notes,
-      deadline: form.deadline,
+      notes: form.notes || undefined,
+      deadline: form.deadline || undefined,
     };
 
+    const result = editingOrder
+      ? await update(editingOrder.id, data)
+      : await create(data as Omit<Order, "id" | "createdAt">);
+
+    if (!result) {
+      setError(
+        "Não foi possível salvar o pedido. Confira o console do navegador para mais detalhes.",
+      );
+      return;
+    }
+
+    const grams = Number(data.filamentGrams) || 0;
+    const cancelled = result.status === "cancelled";
+    const newConsumed = cancelled ? 0 : grams;
+
     if (editingOrder) {
-      await update(editingOrder.id, data);
+      const oldCancelled = editingOrder.status === "cancelled";
+      const oldConsumed = oldCancelled ? 0 : editingOrder.filamentGrams;
+
+      if (editingOrder.filamentId !== result.filamentId) {
+        if (oldConsumed > 0) {
+          await adjustStock(editingOrder.filamentId, oldConsumed);
+        }
+        if (newConsumed > 0) {
+          await adjustStock(result.filamentId, -newConsumed);
+        }
+      } else {
+        const delta = newConsumed - oldConsumed;
+        if (delta !== 0) {
+          await adjustStock(result.filamentId, -delta);
+        }
+      }
+    } else if (newConsumed > 0) {
+      await adjustStock(result.filamentId, -newConsumed);
+    }
+
+    if (editingOrder) {
+      if (result.status !== editingOrder.status) {
+        await createNotification({
+          type: "order",
+          referenceId: result.id,
+          title: "Status do pedido atualizado",
+          description: `Pedido #${
+            result.orderNumber ?? ""
+          } agora está ${translateStatus(result.status)}.`,
+        });
+      }
     } else {
-      await create(data);
+      await createNotification({
+        type: "order",
+        referenceId: result.id,
+        title: "Novo pedido criado",
+        description: `Pedido #${
+          result.orderNumber ?? ""
+        } de ${result.clientName} criado.`,
+      });
     }
 
     setModalOpen(false);
@@ -140,6 +219,10 @@ export default function OrdersPage() {
 
   async function handleDelete(id: string) {
     if (confirm("Tem certeza que deseja excluir este pedido?")) {
+      const order = orders.find((o) => o.id === id);
+      if (order && order.status !== "cancelled" && order.filamentGrams > 0) {
+        await adjustStock(order.filamentId, order.filamentGrams);
+      }
       await remove(id);
     }
   }
@@ -155,59 +238,59 @@ export default function OrdersPage() {
 
       <div className="relative"></div>
 
-              <Header
+      <Header
         title="Pedidos"
         className="border-b border-white/10 bg-white/[0.02] backdrop-blur-xl text-white"
       />
 
       {ordersLoading ? (
-        <div className="p-6 flex items-center justify-center text-white/50 min-h-[200px]">
+        <div className="flex min-h-[200px] items-center justify-center px-4 py-5 text-white/50 sm:p-6">
           Carregando...
         </div>
       ) : (
-        <div className="p-6 space-y-6">
-        <div className="grid gap-4 sm:grid-cols-3">
-          <Card className="border border-white/10 bg-[#050914] backdrop-blur-2xl shadow-2xl shadow-black/40">
-            <CardContent>
-              <p className="text-sm text-gray-500">Total de Pedidos</p>
-              <p className="text-2xl font-bold text-white">{orders.length}</p>
-            </CardContent>
-          </Card>
-          <Card className="border border-white/10 bg-[#050914] backdrop-blur-2xl shadow-2xl shadow-black/40">
-            <CardContent>
-              <p className="text-sm text-gray-500">Receita Total</p>
-              <p className="text-2xl font-bold text-white">
-                {formatCurrency(totalRevenue)}
-              </p>
-            </CardContent>
-          </Card>
-          <Card className="border border-white/10 bg-[#050914] backdrop-blur-2xl shadow-2xl shadow-black/40">
-            <CardContent>
-              <p className="text-sm text-gray-500">Em Andamento</p>
-              <p className="text-2xl font-bold text-white">
-                {
-                  orders.filter(
-                    (o) => o.status === "printing" || o.status === "approved",
-                  ).length
-                }
-              </p>
-            </CardContent>
-          </Card>
-        </div>
+        <div className="space-y-5 px-4 py-5 sm:p-6 sm:space-y-6">
+          <div className="grid gap-4 sm:grid-cols-3">
+            <Card className="border border-white/10 bg-[#050914] backdrop-blur-2xl shadow-2xl shadow-black/40">
+              <CardContent>
+                <p className="text-sm text-gray-500">Total de Pedidos</p>
+                <p className="text-2xl font-bold text-white">{orders.length}</p>
+              </CardContent>
+            </Card>
+            <Card className="border border-white/10 bg-[#050914] backdrop-blur-2xl shadow-2xl shadow-black/40">
+              <CardContent>
+                <p className="text-sm text-gray-500">Receita Total</p>
+                <p className="text-2xl font-bold text-white">
+                  {formatCurrency(totalRevenue)}
+                </p>
+              </CardContent>
+            </Card>
+            <Card className="border border-white/10 bg-[#050914] backdrop-blur-2xl shadow-2xl shadow-black/40">
+              <CardContent>
+                <p className="text-sm text-gray-500">Em Andamento</p>
+                <p className="text-2xl font-bold text-white">
+                  {
+                    orders.filter(
+                      (o) => o.status === "printing" || o.status === "approved",
+                    ).length
+                  }
+                </p>
+              </CardContent>
+            </Card>
+          </div>
 
-        <Card className="border border-white/10 bg-[#050914] backdrop-blur-2xl shadow-2xl shadow-black/40">
-          <CardHeader className="border-b border-white/5">
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-              <div className="flex flex-1 gap-4">
-                {/* Campo de busca */}
-                <div className="relative w-full max-w-sm">
-                  <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/40" />
-                  <input
-                    type="text"
-                    placeholder="Buscar pedidos..."
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                    className="
+          <Card className="border border-white/10 bg-[#050914] backdrop-blur-2xl shadow-2xl shadow-black/40">
+            <CardHeader className="border-b border-white/5">
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                <div className="flex flex-1 flex-col gap-3 sm:flex-row sm:gap-4">
+                  {/* Campo de busca */}
+                  <div className="relative w-full max-w-sm">
+                    <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/40" />
+                    <input
+                      type="text"
+                      placeholder="Buscar pedidos..."
+                      value={search}
+                      onChange={(e) => setSearch(e.target.value)}
+                      className="
                               h-11
                               w-full
                               rounded-xl
@@ -226,32 +309,33 @@ export default function OrdersPage() {
                               focus:ring-2
                               focus:ring-[#fd6401]/20
                             "
-                  />
-                </div>
+                    />
+                  </div>
 
-                {/* Select */}
-                <Select
-                  options={[
-                    { value: "all", label: "Todos Status" },
-                    ...orderStatuses,
-                  ]}
-                  value={statusFilter}
-                  onChange={(e) => setStatusFilter(e.target.value)}
-                  className="
-          w-44
+                  {/* Select */}
+                  <Select
+                    options={[
+                      { value: "all", label: "Todos Status" },
+                      ...orderStatuses,
+                    ]}
+                    value={statusFilter}
+                    onChange={(e) => setStatusFilter(e.target.value)}
+                    className="
+          w-full
+          sm:w-44
           bg-white/5
           border-white/10
           text-white
           focus:border-[#fd6401]/50
           focus:ring-[#fd6401]/20
         "
-                />
-              </div>
+                  />
+                </div>
 
-              {/* Botão */}
-              <Button
-                onClick={openCreate}
-                className="
+                {/* Botão */}
+                <Button
+                  onClick={openCreate}
+                  className="
         bg-gradient-to-r
         from-[#071124]
         to-[#0d1a35]
@@ -260,89 +344,123 @@ export default function OrdersPage() {
         ring-white/10
         hover:ring-[#fd6401]/30
       "
-              >
-                <Plus className="h-4 w-4" />
-                Novo Pedido
-              </Button>
-            </div>
-          </CardHeader>
-          <CardContent className="p-0">
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableHeadCell>Pedido</TableHeadCell>
-                  <TableHeadCell>Cliente</TableHeadCell>
-                  <TableHeadCell>Impressora</TableHeadCell>
-                  <TableHeadCell>Filamento</TableHeadCell>
-                  <TableHeadCell>Qtd</TableHeadCell>
-                  <TableHeadCell>Horas</TableHeadCell>
-                  <TableHeadCell>Valor</TableHeadCell>
-                  <TableHeadCell>Status</TableHeadCell>
-                  <TableHeadCell>Criação</TableHeadCell>
-                  <TableHeadCell className="text-right text-white/50">
-                    Ações
-                  </TableHeadCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {filtered.map((order) => (
-                  <TableRow key={order.id}>
-                    <TableCell className="font-mono text-xs font-medium">
-                      #{order.id}
-                    </TableCell>
-                    <TableCell>{order.clientName}</TableCell>
-                    <TableCell className="text-xs">
-                      {order.printerName}
-                    </TableCell>
-                    <TableCell className="text-xs">
-                      {order.filamentName}
-                    </TableCell>
-                    <TableCell>{order.quantity}</TableCell>
-                    <TableCell>{order.totalHours}h</TableCell>
-                    <TableCell className="font-medium">
-                      {formatCurrency(order.price)}
-                    </TableCell>
-                    <TableCell>
-                      <StatusBadge status={order.status} />
-                    </TableCell>
-                    <TableCell className="text-xs">
-                      {formatDate(order.createdAt)}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex justify-end gap-2">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="text-white/70 hover:bg-white/5 hover:text-white"
-                        >
-                          Editar
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="text-red-400 hover:bg-red-500/10 hover:text-red-300"
-                          onClick={() => handleDelete(order.id)}
-                        >
-                          Excluir
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
-                {filtered.length === 0 && (
+                >
+                  <Plus className="h-4 w-4" />
+                  Novo Pedido
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent className="p-0">
+              <Table>
+                <TableHead>
                   <TableRow>
-                    <TableCell colSpan={10}>
-                      <div className="py-8 text-center text-sm text-gray-500">
-                        Nenhum pedido encontrado
-                      </div>
-                    </TableCell>
+                    <TableHeadCell className="text-center text-white/50">Pedido</TableHeadCell>
+                    <TableHeadCell className="text-center text-white/50">Produto</TableHeadCell>
+                    <TableHeadCell className="text-center text-white/50">Cliente</TableHeadCell>
+                    <TableHeadCell className="text-center text-white/50">Impressora</TableHeadCell>
+                    <TableHeadCell className="text-center text-white/50">Filamento</TableHeadCell>
+                    <TableHeadCell className="text-center text-white/50">Qtd</TableHeadCell>
+                    <TableHeadCell className="text-center text-white/50">Horas</TableHeadCell>
+                    <TableHeadCell className="text-center text-white/50">Valor</TableHeadCell>
+                    <TableHeadCell className="text-center text-white/50">Status</TableHeadCell>
+                    <TableHeadCell className="text-center text-white/50">Criação</TableHeadCell>
+                    <TableHeadCell className="text-center text-white/50">
+                      Ações
+                    </TableHeadCell>
                   </TableRow>
-                )}
-              </TableBody>
-            </Table>
-          </CardContent>
-        </Card>
-      </div>
+                </TableHead>
+                <TableBody>
+                  {filtered.map((order) => (
+                    <TableRow key={order.id}>
+                      <TableCell className="text-center font-mono text-xs font-medium">
+                        #{order.orderNumber ?? order.id}
+                      </TableCell>
+                      <TableCell className="text-center text-[9px]">
+                        {order.productName || "—"}
+                      </TableCell>
+                      <TableCell className="text-center max-w-[180px] whitespace-nowrap overflow-hidden text-ellipsis text-[10px]">
+                        {order.clientName}
+                      </TableCell>
+                      <TableCell className="text-center text-xs">
+                        {order.printerName}
+                      </TableCell>
+                      <TableCell className="text-center text-xs">
+                        {order.filamentName}
+                      </TableCell>
+                      <TableCell className="text-center">{order.quantity}</TableCell>
+                      <TableCell className="text-center">{order.totalHours}h</TableCell>
+                      <TableCell className="text-center font-medium">
+                        {formatCurrency(order.price)}
+                      </TableCell>
+                      <TableCell className="text-center">
+                        <StatusBadge status={order.status} />
+                      </TableCell>
+                      <TableCell className="text-center text-xs">
+                        {formatDate(order.createdAt)}
+                      </TableCell>
+                      <TableCell className="text-center">
+  <div className="flex items-center justify-center gap-1.5">
+  <Button
+    variant="ghost"
+    size="sm"
+    onClick={() => openEdit(order)}
+    className="
+      h-8
+      w-8
+      rounded-lg
+      border
+      border-white/10
+      bg-white/[0.03]
+      text-white/60
+      transition-all
+      duration-200
+      hover:border-[#fd6401]/40
+      hover:bg-[#fd6401]/10
+      hover:text-[#fd6401]
+    "
+  >
+    <Pencil className="h-3.5 w-3.5" />
+  </Button>
+
+  <Button
+    variant="ghost"
+    size="sm"
+    onClick={() => handleDelete(order.id)}
+    className="
+      h-8
+      w-8
+      rounded-lg
+      border
+      border-white/10
+      bg-white/[0.03]
+      text-white/60
+      transition-all
+      duration-200
+      hover:border-red-500/40
+      hover:bg-red-500/10
+      hover:text-red-400
+    "
+  >
+    <Trash2 className="h-3.5 w-3.5" />
+  </Button>
+</div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                  {filtered.length === 0 && (
+                    <TableRow>
+                      <TableCell colSpan={11}>
+                        <div className="py-8 text-center text-sm text-gray-500">
+                          Nenhum pedido encontrado
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
+        </div>
       )}
 
       <Modal
@@ -352,7 +470,26 @@ export default function OrdersPage() {
         size="xl"
       >
         <form onSubmit={handleSave} className="space-y-5">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid gap-4 sm:grid-cols-2">
+            <Select
+              id="product"
+              label="Produto"
+              className="
+                        bg-white/5
+                        border-white/10
+                        text-white
+                        placeholder:text-white/30
+                        focus:border-[#fd6401]/50
+                        focus:ring-[#fd6401]/20
+                        "
+              options={products.map((p) => ({
+                value: p.id,
+                label: p.name,
+              }))}
+              value={form.productId}
+              onChange={(e) => setForm({ ...form, productId: e.target.value })}
+              required
+            />
             <Select
               id="client"
               label="Cliente"
@@ -392,7 +529,7 @@ export default function OrdersPage() {
               required
             />
           </div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid gap-4 sm:grid-cols-2">
             <Select
               id="filament"
               label="Filamento"
@@ -433,7 +570,7 @@ export default function OrdersPage() {
               }
             />
           </div>
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid gap-4 sm:grid-cols-3">
             <Input
               id="quantity"
               label="Quantidade"
@@ -487,7 +624,7 @@ export default function OrdersPage() {
               required
             />
           </div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid gap-4 sm:grid-cols-2">
             <Input
               id="price"
               label="Preço (R$)"
@@ -547,7 +684,13 @@ export default function OrdersPage() {
                   focus:ring-[#fd6401]/20
                   "
           />
-          <div className="flex justify-end gap-3 pt-4 border-t border-white/5">
+          {error && (
+            <div className="rounded-xl border border-red-400/20 bg-red-500/10 px-4 py-3 text-sm text-red-200">
+              {error}
+            </div>
+          )}
+
+          <div className="flex flex-col-reverse gap-3 border-t border-white/5 pt-4 sm:flex-row sm:justify-end">
             <Button
               type="button"
               variant="secondary"
@@ -559,6 +702,7 @@ export default function OrdersPage() {
                         hover:bg-white/10
                         hover:text-white
                         "
+              onClick={() => setModalOpen(false)}
             >
               Cancelar
             </Button>

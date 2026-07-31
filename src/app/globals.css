@@ -35,3 +35,100 @@
     background: rgba(253,100,1,.45);
   }
 }
+
+@layer utilities {
+  .login-noise {
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 160 160' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.55'/%3E%3C/svg%3E");
+  }
+
+  .login-rise {
+    animation: login-rise .55s cubic-bezier(.2, .8, .2, 1) both;
+  }
+
+  .login-card {
+    animation: login-card .5s cubic-bezier(.2, .8, .2, 1) both;
+  }
+
+  .login-stagger,
+  .login-input {
+    animation: login-stagger .45s cubic-bezier(.2, .8, .2, 1) both;
+  }
+
+  .login-shine {
+    animation: login-gradient 4s ease infinite;
+  }
+
+  .login-shine::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    transform: translateX(-120%) skewX(-18deg);
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,.42), transparent);
+    transition: transform .65s ease;
+  }
+
+  .login-shine:hover::before {
+    transform: translateX(120%) skewX(-18deg);
+  }
+
+  @keyframes login-rise {
+    from {
+      opacity: 0;
+      transform: translateY(16px) scale(.96);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  @keyframes login-card {
+    from {
+      opacity: 0;
+      transform: translateY(18px) scale(.98);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  @keyframes login-stagger {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes login-gradient {
+    0%,
+    100% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .mobile-table {
+      scrollbar-width: thin;
+    }
+
+    form .grid-cols-2,
+    form .grid-cols-3,
+    form .sm\:grid-cols-2,
+    form .sm\:grid-cols-3 {
+      grid-template-columns: minmax(0, 1fr) !important;
+    }
+
+    form button,
+    [role="dialog"] button {
+      min-height: 2.5rem;
+    }
+  }
+}

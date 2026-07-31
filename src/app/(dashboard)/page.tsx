@@ -31,9 +31,12 @@ export default function DashboardPage() {
     totalOrders: orders.length,
     pendingOrders: orders.filter((o) => o.status === "pending" || o.status === "approved").length,
     monthlyRevenue: orders
-      .filter((o) => o.status === "completed" || o.status === "delivered")
+      .filter((o) => o.status === "delivered")
       .reduce((sum, o) => sum + o.price, 0),
-    filamentStock: filaments.reduce((sum, f) => sum + f.quantity, 0),
+    filamentStock: filaments.reduce(
+      (sum, f) => sum + (f.remainingWeight ?? f.weight * f.quantity),
+      0,
+    ),
   };
 
   if (loadingClients || loadingPrinters || loadingOrders || loadingFilaments) {
@@ -41,7 +44,7 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="relative min-h-screen bg-[#050914]">
+    <div className="relative min-h-full bg-[#050914]">
       {/* Ambient background glow — same language as login */}
       <div className="pointer-events-none fixed -bottom-40 -right-40 h-[500px] w-[500px] rounded-full bg-[#071124]/60 blur-[120px]" />
       <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(255,255,255,0.06)_1px,transparent_0)] bg-[size:32px_32px]" />
@@ -52,7 +55,7 @@ export default function DashboardPage() {
           className="border-b border-white/10 bg-white/[0.02] backdrop-blur-xl text-white"
         />
 
-        <div className="p-8 space-y-8">
+        <div className="space-y-5 px-4 py-4 sm:p-6 sm:space-y-6">
           
           {/* <section className="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-[#071124] via-[#09162f] to-[#050914] p-8 shadow-2xl">
             <div className="absolute -right-20 -top-20 h-72 w-72 rounded-full bg-[#fd6401]/10 blur-3xl" />
@@ -140,7 +143,7 @@ export default function DashboardPage() {
                 {orders.slice(0, 5).map((order) => (
                   <div
                     key={order.id}
-                    className="flex items-center justify-between py-2"
+                    className="flex flex-col gap-3 py-3 sm:flex-row sm:items-center sm:justify-between"
                   >
                     <div>
                       <h3 className="font-medium text-white">
@@ -152,7 +155,7 @@ export default function DashboardPage() {
                       </p>
                     </div>
 
-                    <div className="flex items-center gap-5">
+                    <div className="flex flex-wrap items-center gap-3 sm:gap-5">
                       <span className="font-semibold text-white">
                         {formatCurrency(order.price)}
                       </span>
@@ -178,20 +181,20 @@ export default function DashboardPage() {
             </Card>
 
             <Card className="rounded-3xl border border-white/10 bg-gradient-to-br from-[#071124] to-[#0d1a35] shadow-2xl">
-              <CardContent className="flex h-full flex-col items-center justify-center text-center p-8">
+              <CardContent className="flex h-full flex-col items-center justify-center p-5 text-center sm:p-8">
                 <div className="flex h-24 w-24 items-center justify-center rounded-3xl bg-[#fd6401]/10 ring-1 ring-[#fd6401]/20">
                   <Package className="h-12 w-12 text-[#fd6401]" />
                 </div>
 
                 <h2 className="mt-6 text-3xl font-bold text-white">
-                  {stats.filamentStock}
+                  {stats.filamentStock.toFixed(0)}g
                 </h2>
 
                 <p className="mt-2 text-white/50">
-                  Bobinas disponíveis em estoque
+                  Filamento disponível em estoque
                 </p>
 
-                <div className="mt-8 w-full rounded-2xl border border-white/10 bg-white/5 p-5">
+                {/* <div className="mt-8 w-full rounded-2xl border border-white/10 bg-white/5 p-5">
                   <div className="flex justify-between">
                     <span className="text-white/50">Consumo mensal</span>
 
@@ -201,7 +204,7 @@ export default function DashboardPage() {
                   <div className="mt-3 h-2 overflow-hidden rounded-full bg-white/10">
                     <div className="h-full w-[38%] rounded-full bg-gradient-to-r from-[#fd6401] to-orange-400" />
                   </div>
-                </div>
+                </div> */}
               </CardContent>
             </Card>
           </div>

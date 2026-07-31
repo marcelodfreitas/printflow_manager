@@ -12,6 +12,7 @@ import { cn } from "@/lib/utils";
 interface Option {
   value: string;
   label: string;
+  dot?: string;
 }
 
 interface SelectProps {
@@ -43,6 +44,8 @@ export function Select({
   options,
   onChange,
 }: SelectProps) {
+  const selectedOption = options.find((option) => option.value === value);
+
   return (
     <div className="w-full">
       {label && (
@@ -105,7 +108,21 @@ export function Select({
         >
           <SelectPrimitive.Value
             placeholder={placeholder ?? "Selecione"}
-          />
+          >
+            {selectedOption && (
+              <span className="flex min-w-0 items-center gap-2 truncate">
+                {selectedOption.dot && (
+                  <span
+                    className={cn(
+                      "h-2 w-2 shrink-0 rounded-full",
+                      selectedOption.dot,
+                    )}
+                  />
+                )}
+                <span className="truncate">{selectedOption.label}</span>
+              </span>
+            )}
+          </SelectPrimitive.Value>
 
           <SelectPrimitive.Icon>
             <ChevronDown className="h-4 w-4 text-white/40" />
@@ -167,7 +184,17 @@ export function Select({
                   </span>
 
                   <SelectPrimitive.ItemText>
-                    {option.label}
+                    <span className="flex items-center gap-2">
+                      {option.dot && (
+                        <span
+                          className={cn(
+                            "h-2 w-2 shrink-0 rounded-full",
+                            option.dot,
+                          )}
+                        />
+                      )}
+                      {option.label}
+                    </span>
                   </SelectPrimitive.ItemText>
                 </SelectPrimitive.Item>
               ))}

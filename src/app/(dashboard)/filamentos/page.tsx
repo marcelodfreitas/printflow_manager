@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Plus, Search, Circle } from "lucide-react";
+import { Plus, Search, Circle, Trash2, Pencil } from "lucide-react";
 import { Header } from "@/components/layout/Header";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
@@ -54,6 +54,8 @@ export default function FilamentsPage() {
       f.manufacturer.toLowerCase().includes(search.toLowerCase()),
   );
 
+  const stockOf = (f: Filament) => f.remainingWeight ?? f.weight * f.quantity;
+
   function openCreate() {
     setEditingFilament(null);
     setForm({
@@ -99,9 +101,25 @@ export default function FilamentsPage() {
       weight: Number(form.weight),
       quantity: Number(form.quantity),
       costPerKg: Number(form.costPerKg),
+    } as {
+      name: string;
+      type: Filament["type"];
+      color: string;
+      colorHex: string;
+      manufacturer: string;
+      diameter: number;
+      weight: number;
+      quantity: number;
+      costPerKg: number;
+      remainingWeight?: number;
     };
 
     if (editingFilament) {
+      const weightChanged = data.weight !== editingFilament.weight;
+      const quantityChanged = data.quantity !== editingFilament.quantity;
+      if (weightChanged || quantityChanged) {
+        data.remainingWeight = data.weight * data.quantity;
+      }
       update(editingFilament.id, data);
     } else {
       create(data);
@@ -123,8 +141,8 @@ export default function FilamentsPage() {
 
   return (
     <div className="relative min-h-screen bg-[#050914]">
-  <div className="pointer-events-none fixed -bottom-40 -right-40 h-[500px] w-[500px] rounded-full bg-[#071124]/60 blur-[120px]" />
-  <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(255,255,255,0.06)_1px,transparent_0)] bg-[size:32px_32px]" />
+      <div className="pointer-events-none fixed -bottom-40 -right-40 h-[500px] w-[500px] rounded-full bg-[#071124]/60 blur-[120px]" />
+      <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(255,255,255,0.06)_1px,transparent_0)] bg-[size:32px_32px]" />
       <Header
         title="Filamentos"
         className="border-b border-white/10 bg-white/[0.02] backdrop-blur-xl text-white"
@@ -136,43 +154,59 @@ export default function FilamentsPage() {
         </div>
       )}
 
-      {!loading && (<>
-        <div className="grid gap-4  sm:grid-cols-3">
-          <Card className="border border-white/10 bg-white/[0.03] backdrop-blur-2xl shadow-2xl shadow-black/40">
-            <CardContent>
-              <p className="text-sm text-white/50">Total de Filamentos</p>
-              <p className="text-2xl font-bold text-white">
-                {filaments.length}
-              </p>
-            </CardContent>
-          </Card>
-          <Card className="border border-white/10 bg-white/[0.03] backdrop-blur-2xl shadow-2xl shadow-black/40">
-            <CardContent>
-              <p className="text-sm text-white/50">Unidades em Estoque</p>
-              <p className="text-2xl font-bold text-white">
-                {filaments.reduce((acc, f) => acc + f.quantity, 0)}
-              </p>
-            </CardContent>
-          </Card>
-          <Card className="border border-white/10 bg-white/[0.03] backdrop-blur-2xl shadow-2xl shadow-black/40">
-            <CardContent>
-              <p className="text-sm  text-white/50">Valor Total em Estoque</p>
-              <p className="text-2xl font-bold text-white">
-                {formatCurrency(totalValue)}
-              </p>
-            </CardContent>
-          </Card>
-        </div>
+      {!loading && (
+        <div className="space-y-5 px-4 py-5 sm:p-6 sm:space-y-6">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <Card className="border border-white/10 bg-white/[0.03] backdrop-blur-2xl shadow-2xl shadow-black/40">
+              <CardContent>
+                <p className="text-sm text-white/50">Total de Filamentos</p>
+                <p className="text-2xl font-bold text-white">
+                  {filaments.length}
+                </p>
+              </CardContent>
+            </Card>
+            <Card className="border border-white/10 bg-white/[0.03] backdrop-blur-2xl shadow-2xl shadow-black/40">
+              <CardContent>
+                <p className="text-sm text-white/50">Estoque Disponível</p>
+                <p className="text-2xl font-bold text-white">
+                  {filaments
+                    .reduce(
+                      (acc, f) =>
+                        acc + (f.remainingWeight ?? f.weight * f.quantity),
+                      0,
+                    )
+                    .toFixed(0)}
+                  g
+                </p>
+              </CardContent>
+            </Card>
+            <Card className="border border-white/10 bg-white/[0.03] backdrop-blur-2xl shadow-2xl shadow-black/40">
+              <CardContent>
+                <p className="text-sm text-white/50">Unidades em Estoque</p>
+                <p className="text-2xl font-bold text-white">
+                  {filaments.reduce((acc, f) => acc + f.quantity, 0)}
+                </p>
+              </CardContent>
+            </Card>
+            <Card className="border border-white/10 bg-white/[0.03] backdrop-blur-2xl shadow-2xl shadow-black/40">
+              <CardContent>
+                <p className="text-sm  text-white/50">Valor Total em Estoque</p>
+                <p className="text-2xl font-bold text-white">
+                  {formatCurrency(totalValue)}
+                </p>
+              </CardContent>
+            </Card>
+          </div>
 
-        <Card className="border border-white/10 bg-white/[0.03] backdrop-blur-2xl shadow-2xl shadow-black/40">
-          <CardHeader className="border-b border-white/5">
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-              <div className="relative flex-1 max-w-xs">
-                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/30" />
-                <input
-                  type="text"
-                  placeholder="Buscar filamentos..."
-                  className="
+          <Card className="border border-white/10 bg-white/[0.03] backdrop-blur-2xl shadow-2xl shadow-black/40">
+            <CardHeader className="border-b border-white/5">
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                <div className="relative w-full flex-1 sm:max-w-xs">
+                  <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/30" />
+                  <input
+                    type="text"
+                    placeholder="Buscar filamentos..."
+                    className="
                             w-full
                             rounded-lg
                             border
@@ -189,13 +223,13 @@ export default function FilamentsPage() {
                             focus:ring-1
                             focus:ring-[#fd6401]/30
                             "
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                />
-              </div>
-              <Button
-                onClick={openCreate}
-                className="
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                  />
+                </div>
+                <Button
+                  onClick={openCreate}
+                  className="
                     bg-gradient-to-r
                     from-[#071124]
                     to-[#0d1a35]
@@ -209,115 +243,189 @@ export default function FilamentsPage() {
                     hover:ring-[#fd6401]/30
                     hover:shadow-[#fd6401]/20
                 "
-              >
-                <Plus className="h-4 w-4" />
-                Novo Filamento
-              </Button>
-            </div>
-          </CardHeader>
-          <CardContent className="p-0 bg-[#0a1120] rounded-xl ">
-            <Table>
-              <TableHead className="border-b border-white/10">
-                <TableRow
-                      className="
+                >
+                  <Plus className="h-4 w-4" />
+                  Novo Filamento
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent className="p-0 bg-[#0a1120] rounded-xl ">
+              <Table>
+                <TableHead className="border-b border-white/10">
+                  <TableRow
+                    className="
                       border-b
                       border-white/5
                       hover:bg-white/[0.02]
                       transition-colors
                       last:border-0
-                  ">
-                  <TableHeadCell>Nome</TableHeadCell>
-                  <TableHeadCell>Cor</TableHeadCell>
-                  <TableHeadCell>Tipo</TableHeadCell>
-                  <TableHeadCell>Fabricante</TableHeadCell>
-                  <TableHeadCell>Diâmetro</TableHeadCell>
-                  <TableHeadCell>Peso</TableHeadCell>
-                  <TableHeadCell>Qtd</TableHeadCell>
-                  <TableHeadCell>Custo/Kg</TableHeadCell>
-                  <TableHeadCell className="text-center">Ações</TableHeadCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {filtered.map((filament) => (
-                  <TableRow key={filament.id}>
-                    <TableCell>
-                      <p className="font-medium text-white">{filament.name}</p>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        <Circle
-                          className="h-4 w-4"
-                          fill={filament.colorHex}
-                          stroke={filament.colorHex}
-                        />
-                        <span className="text-sm">{filament.color}</span>
-                      </div>
-                    </TableCell>
-                    <TableCell>{filament.type}</TableCell>
-                    <TableCell>{filament.manufacturer}</TableCell>
-                    <TableCell>{filament.diameter}mm</TableCell>
-                    <TableCell>{filament.weight}g</TableCell>
-                    <TableCell>
-                      <span
-                        className={
-                          filament.quantity <= 2
-                            ? "font-medium text-red-600"
-                            : ""
-                        }
-                      >
-                        {filament.quantity}
-                      </span>
-                    </TableCell>
-                    <TableCell>{formatCurrency(filament.costPerKg)}</TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex justify-end gap-2">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => openEdit(filament)}
-                        >
-                          Editar
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="text-red-600 hover:text-red-700"
-                          onClick={() => handleDelete(filament.id)}
-                        >
-                          Excluir
-                        </Button>
-                      </div>
-                    </TableCell>
+                  "
+                  >
+                    <TableHeadCell className="text-center text-white/50">
+                      Nome
+                    </TableHeadCell>
+                    <TableHeadCell className="text-center text-white/50">
+                      Cor
+                    </TableHeadCell>
+                    <TableHeadCell className="text-center text-white/50">
+                      Tipo
+                    </TableHeadCell>
+                    <TableHeadCell className="text-center text-white/50">
+                      Fabricante
+                    </TableHeadCell>
+                    <TableHeadCell className="text-center text-white/50">
+                      Diâmetro
+                    </TableHeadCell>
+                    <TableHeadCell className="text-center text-white/50">
+                      Peso
+                    </TableHeadCell>
+                    <TableHeadCell className="text-center text-white/50">
+                      Estoque (g)
+                    </TableHeadCell>
+                    <TableHeadCell className="text-center text-white/50">
+                      Qtd
+                    </TableHeadCell>
+                    <TableHeadCell className="text-center text-white/50">
+                      Custo/Kg
+                    </TableHeadCell>
+                    <TableHeadCell className="text-center text-white/50">
+                      Ações
+                    </TableHeadCell>
                   </TableRow>
-                ))}
-                {filtered.length === 0 && (
-                  <TableRow>
-                    <TableCell colSpan={9}>
-                      <div className="py-8 text-center text-sm text-gray-500">
-                        Nenhum filamento encontrado
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table>
-          </CardContent>
-        </Card>
+                </TableHead>
+                <TableBody>
+                  {filtered.map((filament) => (
+                    <TableRow key={filament.id}>
+                      <TableCell className="text-center">
+                        <p className="font-medium text-white">
+                          {filament.name}
+                        </p>
+                      </TableCell>
+                      <TableCell className="text-center">
+                        <div className="mx-auto flex w-fit items-center gap-2">
+                          <Circle
+                            className="h-4 w-4"
+                            fill={filament.colorHex}
+                            stroke={filament.colorHex}
+                          />
+                          <span className="text-sm">{filament.color}</span>
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-center">
+                        {filament.type}
+                      </TableCell>
+                      <TableCell className="text-center">
+                        {filament.manufacturer}
+                      </TableCell>
+                      <TableCell className="text-center">
+                        {filament.diameter}mm
+                      </TableCell>
+                      <TableCell className="text-center">
+                        {filament.weight}g
+                      </TableCell>
+                      <TableCell className="text-center">
+                        <span
+                          className={
+                            stockOf(filament) <= filament.weight * 0.2
+                              ? "font-medium text-red-600"
+                              : stockOf(filament) <= filament.weight * 0.5
+                                ? "font-medium text-amber-500"
+                                : "font-medium text-white"
+                          }
+                        >
+                          {stockOf(filament)}g
+                        </span>
+                      </TableCell>
+                      <TableCell className="text-center">
+                        <span
+                          className={
+                            filament.quantity <= 2
+                              ? "font-medium text-red-600"
+                              : ""
+                          }
+                        >
+                          {filament.quantity}
+                        </span>
+                      </TableCell>
+                      <TableCell className="text-center">
+                        {formatCurrency(filament.costPerKg)}
+                      </TableCell>
+                      <TableCell className="text-center">
+                        <div className="flex items-center justify-center gap-1.5">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => openEdit(filament)}
+                            className="
+      h-8
+      w-8
+      rounded-lg
+      border
+      border-white/10
+      bg-white/[0.03]
+      text-white/60
+      transition-all
+      duration-200
+      hover:border-[#fd6401]/40
+      hover:bg-[#fd6401]/10
+      hover:text-[#fd6401]
+    "
+                          >
+                            <Pencil className="h-3.5 w-3.5" />
+                          </Button>
 
-      <Modal
-        isOpen={modalOpen}
-        onClose={() => setModalOpen(false)}
-        
-        title={editingFilament ? "Editar Filamento" : "Novo Filamento"}
-        size="lg"
-      >
-        <form onSubmit={handleSave} className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
-            <Input
-              id="name"
-              label="Nome"
-              value={form.name}
-              className="
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleDelete(filament.id)}
+                            className="
+      h-8
+      w-8
+      rounded-lg
+      border
+      border-white/10
+      bg-white/[0.03]
+      text-white/60
+      transition-all
+      duration-200
+      hover:border-red-500/40
+      hover:bg-red-500/10
+      hover:text-red-400
+    "
+                          >
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                  {filtered.length === 0 && (
+                    <TableRow>
+                      <TableCell colSpan={10}>
+                        <div className="py-8 text-center text-sm text-gray-500">
+                          Nenhum filamento encontrado
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
+
+          <Modal
+            isOpen={modalOpen}
+            onClose={() => setModalOpen(false)}
+            title={editingFilament ? "Editar Filamento" : "Novo Filamento"}
+            size="lg"
+          >
+            <form onSubmit={handleSave} className="space-y-4">
+              <div className="grid gap-4 sm:grid-cols-2">
+                <Input
+                  id="name"
+                  label="Nome"
+                  value={form.name}
+                  className="
                         bg-white/5
                         border-white/10
                         text-white
@@ -325,15 +433,15 @@ export default function FilamentsPage() {
                         focus:border-[#fd6401]/50
                         focus:ring-[#fd6401]/20
                         "
-              onChange={(e) => setForm({ ...form, name: e.target.value })}
-              required
-            />
-            <Select
-              id="type"
-              label="Tipo"
-              options={filamentTypes}
-              value={form.type}
-              className="
+                  onChange={(e) => setForm({ ...form, name: e.target.value })}
+                  required
+                />
+                <Select
+                  id="type"
+                  label="Tipo"
+                  options={filamentTypes}
+                  value={form.type}
+                  className="
                         bg-white/5
                         border-white/10
                         text-white
@@ -341,17 +449,20 @@ export default function FilamentsPage() {
                         focus:border-[#fd6401]/50
                         focus:ring-[#fd6401]/20
                         "
-              onChange={(e) =>
-                setForm({ ...form, type: e.target.value as Filament["type"] })
-              }
-            />
-          </div>
-          <div className="grid grid-cols-3 gap-4">
-            <Input
-              id="color"
-              label="Cor"
-              value={form.color}
-              className="
+                  onChange={(e) =>
+                    setForm({
+                      ...form,
+                      type: e.target.value as Filament["type"],
+                    })
+                  }
+                />
+              </div>
+              <div className="grid gap-4 sm:grid-cols-3">
+                <Input
+                  id="color"
+                  label="Cor"
+                  value={form.color}
+                  className="
                         bg-white/5
                         border-white/10
                         text-white
@@ -359,25 +470,27 @@ export default function FilamentsPage() {
                         focus:border-[#fd6401]/50
                         focus:ring-[#fd6401]/20
                         "
-              onChange={(e) => setForm({ ...form, color: e.target.value })}
-              required
-            />
-            <div>
-              <label className="mb-1 block text-sm font-medium text-gray-700">
-                Amostra
-              </label>
-              <input
-                type="color"
-                value={form.colorHex}
-                onChange={(e) => setForm({ ...form, colorHex: e.target.value })}
-                className="h-10 w-full rounded-lg border border-white/10 bg-white/5 p-1"
-              />
-            </div>
-            <Input
-              id="manufacturer"
-              label="Fabricante"
-              value={form.manufacturer}
-              className="
+                  onChange={(e) => setForm({ ...form, color: e.target.value })}
+                  required
+                />
+                <div>
+                  <label className="mb-1 block text-sm font-medium text-gray-700">
+                    Amostra
+                  </label>
+                  <input
+                    type="color"
+                    value={form.colorHex}
+                    onChange={(e) =>
+                      setForm({ ...form, colorHex: e.target.value })
+                    }
+                    className="h-10 w-full rounded-lg border border-white/10 bg-white/5 p-1"
+                  />
+                </div>
+                <Input
+                  id="manufacturer"
+                  label="Fabricante"
+                  value={form.manufacturer}
+                  className="
                         bg-white/5
                         border-white/10
                         text-white
@@ -385,20 +498,20 @@ export default function FilamentsPage() {
                         focus:border-[#fd6401]/50
                         focus:ring-[#fd6401]/20
                         "
-              onChange={(e) =>
-                setForm({ ...form, manufacturer: e.target.value })
-              }
-              required
-            />
-          </div>
-          <div className="grid grid-cols-3 gap-4">
-            <Input
-              id="diameter"
-              label="Diâmetro (mm)"
-              type="number"
-              step="0.05"
-              value={form.diameter}
-              className="
+                  onChange={(e) =>
+                    setForm({ ...form, manufacturer: e.target.value })
+                  }
+                  required
+                />
+              </div>
+              <div className="grid gap-4 sm:grid-cols-3">
+                <Input
+                  id="diameter"
+                  label="Diâmetro (mm)"
+                  type="number"
+                  step="0.05"
+                  value={form.diameter}
+                  className="
                         bg-white/5
                         border-white/10
                         text-white
@@ -406,15 +519,17 @@ export default function FilamentsPage() {
                         focus:border-[#fd6401]/50
                         focus:ring-[#fd6401]/20
                         "
-              onChange={(e) => setForm({ ...form, diameter: e.target.value })}
-              required
-            />
-            <Input
-              id="weight"
-              label="Peso (g)"
-              type="number"
-              value={form.weight}
-              className="
+                  onChange={(e) =>
+                    setForm({ ...form, diameter: e.target.value })
+                  }
+                  required
+                />
+                <Input
+                  id="weight"
+                  label="Peso (g)"
+                  type="number"
+                  value={form.weight}
+                  className="
                         bg-white/5
                         border-white/10
                         text-white
@@ -422,15 +537,15 @@ export default function FilamentsPage() {
                         focus:border-[#fd6401]/50
                         focus:ring-[#fd6401]/20
                         "
-              onChange={(e) => setForm({ ...form, weight: e.target.value })}
-              required
-            />
-            <Input
-              id="quantity"
-              label="Quantidade"
-              type="number"
-              value={form.quantity}
-              className="
+                  onChange={(e) => setForm({ ...form, weight: e.target.value })}
+                  required
+                />
+                <Input
+                  id="quantity"
+                  label="Quantidade"
+                  type="number"
+                  value={form.quantity}
+                  className="
                         bg-white/5
                         border-white/10
                         text-white
@@ -438,17 +553,19 @@ export default function FilamentsPage() {
                         focus:border-[#fd6401]/50
                         focus:ring-[#fd6401]/20
                         "
-              onChange={(e) => setForm({ ...form, quantity: e.target.value })}
-              required
-            />
-          </div>
-          <Input
-            id="costPerKg"
-            label="Custo por Kg (R$)"
-            type="number"
-            step="0.01"
-            value={form.costPerKg}
-            className="
+                  onChange={(e) =>
+                    setForm({ ...form, quantity: e.target.value })
+                  }
+                  required
+                />
+              </div>
+              <Input
+                id="costPerKg"
+                label="Custo por Kg (R$)"
+                type="number"
+                step="0.01"
+                value={form.costPerKg}
+                className="
                       bg-white/5
                       border-white/10
                       text-white
@@ -456,14 +573,16 @@ export default function FilamentsPage() {
                       focus:border-[#fd6401]/50
                       focus:ring-[#fd6401]/20
                       "
-            onChange={(e) => setForm({ ...form, costPerKg: e.target.value })}
-            required
-          />
-          <div className="flex justify-end gap-3 pt-2">
-            <Button
-              type="button"
-              variant="secondary"
-              className="
+                onChange={(e) =>
+                  setForm({ ...form, costPerKg: e.target.value })
+                }
+                required
+              />
+              <div className="flex flex-col-reverse gap-3 pt-2 sm:flex-row sm:justify-end">
+                <Button
+                  type="button"
+                  variant="secondary"
+                  className="
                         bg-white/5
                         text-white/70
                         ring-1
@@ -471,11 +590,13 @@ export default function FilamentsPage() {
                         hover:bg-white/10
                         hover:text-white
                         "
-              onClick={() => setModalOpen(false)}
-            >
-              Cancelar
-            </Button>
-            <Button type="submit" className="
+                  onClick={() => setModalOpen(false)}
+                >
+                  Cancelar
+                </Button>
+                <Button
+                  type="submit"
+                  className="
                                             bg-gradient-to-r
                                             from-[#071124]
                                             to-[#0d1a35]
@@ -483,14 +604,15 @@ export default function FilamentsPage() {
                                             ring-1
                                             ring-white/10
                                             hover:ring-[#fd6401]/30
-                                            ">
-              {editingFilament ? "Salvar" : "Criar"}
-            </Button>
-          </div>
-        </form>
-      </Modal>
-      </>
-    )}
+                                            "
+                >
+                  {editingFilament ? "Salvar" : "Criar"}
+                </Button>
+              </div>
+            </form>
+          </Modal>
+        </div>
+      )}
     </div>
   );
 }

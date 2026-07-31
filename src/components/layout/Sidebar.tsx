@@ -12,10 +12,13 @@ import {
   Package,
   FileText,
   Calculator,
+  Boxes,
   LogOut,
+  X,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
-import logo from "@/assets/logo.png";
+import { useMobileNav } from "@/contexts/MobileNavContext";
+import logo from "@/assets/apple-touch-icon.png";
 
 const navSections = [
   {
@@ -26,9 +29,14 @@ const navSections = [
     title: "GESTÃO",
     items: [
       { href: "/clientes", label: "Clientes", icon: Users },
+      { href: "/produtos", label: "Produtos", icon: Boxes },
       { href: "/pedidos", label: "Pedidos", icon: Package },
       { href: "/orcamentos", label: "Orçamentos", icon: FileText },
-      { href: "/calculadora", label: "Calculadora de Custos", icon: Calculator },
+      {
+        href: "/calculadora",
+        label: "Calculadora de Custos",
+        icon: Calculator,
+      },
     ],
   },
   {
@@ -45,225 +53,184 @@ function isNavItemActive(pathname: string, href: string) {
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
-export function Sidebar() {
+function LogoBlock({
+  mobile = false,
+  onClose,
+}: {
+  mobile?: boolean;
+  onClose?: () => void;
+}) {
+  return (
+    <div className="border-b border-white/10 px-4 py-3">
+      <div className="flex items-center">
+        <div className="flex h-12 w-12 items-center justify-center">
+  <Image
+    src={logo}
+    alt="PrintFlow"
+    width={44}
+    height={44}
+    className="object-contain"
+  />
+</div>
+
+        <div
+          className={cn(
+            "overflow-hidden transition-all duration-300",
+            mobile
+              ? "ml-3 flex-1 opacity-100"
+              : "ml-0 w-0 opacity-0 group-hover:ml-3 group-hover:w-36 group-hover:opacity-100",
+          )}
+        >
+          <h1 className="whitespace-nowrap text-base font-bold text-white">
+            PrintFlow
+          </h1>
+
+          <p className="whitespace-nowrap text-xs uppercase tracking-[.25em] text-white/40">
+            MANAGER 3D
+          </p>
+        </div>
+
+        {onClose && (
+          <button
+            onClick={onClose}
+            className="ml-auto rounded-lg p-2 text-white/50 hover:bg-white/5 hover:text-white"
+          >
+            <X className="h-5 w-5" />
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function NavSections({
+  mobile = false,
+  onNavigate,
+}: {
+  mobile?: boolean;
+  onNavigate?: () => void;
+}) {
   const pathname = usePathname();
+
+  return (
+    <nav className="flex-1 overflow-y-auto py-3">
+      {navSections.map((section) => (
+        <div key={section.title} className="mb-4 px-2">
+          <p
+            className={cn(
+              "mb-2 overflow-hidden whitespace-nowrap px-2 text-[10px] font-semibold uppercase tracking-[0.3em] text-white/25",
+              !mobile && "opacity-0 transition-opacity group-hover:opacity-100",
+            )}
+          >
+            {section.title}
+          </p>
+
+          <div className="space-y-1">
+            {section.items.map((item) => {
+              const active = isNavItemActive(pathname, item.href);
+
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  onClick={onNavigate}
+                  className={cn(
+                    "relative flex items-center rounded-xl transition-all duration-300",
+                    mobile ? "h-11 gap-3 px-3 text-sm font-medium" : "h-12",
+                    active
+                      ? "bg-white/5 text-white"
+                      : "text-white/60 hover:bg-white/5 hover:text-white",
+                    mobile &&
+                      active &&
+                      "bg-[#fd6401] text-white shadow-lg shadow-[#fd6401]/20",
+                  )}
+                >
+                  <div
+                    className={cn(
+                      "flex h-10 w-10 shrink-0 items-center justify-center rounded-xl transition-all duration-300",
+                      active
+                        ? "bg-[#fd6401] text-white"
+                        : "bg-white/5 text-white/70 group-hover:bg-white/10 group-hover:text-white",
+                    )}
+                  >
+                    <item.icon className="h-5 w-5" />
+                  </div>
+
+                  <span
+                    className={cn(
+                      "whitespace-nowrap ml-2 transition-all duration-200",
+                      !mobile && "opacity-0 group-hover:opacity-100",
+                    )}
+                  >
+                    {item.label}
+                  </span>
+                </Link>
+              );
+            })}
+          </div>
+        </div>
+      ))}
+    </nav>
+  );
+}
+
+function LogoutButton({ mobile = false }: { mobile?: boolean }) {
   const { logout } = useAuth();
 
   return (
-    <aside
-    className="
-        group
-        flex
-        h-screen
-        w-[72px]
-        hover:w-[260px]
-        shrink-0
-        flex-col
-        bg-[#050914]
-        border-r
-        border-white/10
-        transition-[width]
-        duration-300
-        ease-in-out
-    "
->
-      {/* Logo */}
-      <div className="border-b border-white/10 px-4 py-2">
-        <div
-          className="
-            flex
-            items-center
-            justify-start
-            gap-4
-            group-hover:justify-start
-            transition-all
-            z-10
-          "
-        >
-          <div
-            className="
-              flex
-              h-10
-              w-10
-              shrink-0
-              items-center
-              justify-center
-              rounded-2xl
-              bg-[#0f2347]
-              
-              ring-1
-              ring-white/10
-            "
-          >
-            <Image src={logo} alt="PrintFlow" className="rounded-xl" width={40} height={40} />
-          </div>
-
-          <div
-            className="
-              overflow-hidden
-              whitespace-nowrap
-              opacity-0
-              transition-all
-              duration-200
-              group-hover:opacity-100
-            "
-          >
-            <h1 className="text-base font-bold text-white">PrintFlow</h1>
-
-            <p className="text-xs uppercase tracking-[0.25em] text-white/40">
-              MANAGER 3D
-            </p>
-          </div>
+    <div className="border-t border-white/10 p-3">
+      <button
+        onClick={logout}
+        className={cn(
+          "flex w-full items-center rounded-xl text-white/60 transition-all hover:bg-red-500/10 hover:text-red-400",
+          mobile ? "h-11 gap-3 px-3 text-sm font-medium" : "h-12",
+        )}
+      >
+        <div className="flex h-12 w-12 shrink-0 items-center justify-center transition-all duration-500">
+          <LogOut className="h-5 w-5" />
         </div>
-      </div>
+        <span
+          className={cn(
+            "whitespace-nowrap",
+            !mobile &&
+              "opacity-0 -translate-x-2 transition-all duration-300 group-hover:translate-x-0 group-hover:opacity-100",
+          )}
+        >
+          Sair
+        </span>
+      </button>
+    </div>
+  );
+}
 
-      {/* Navegação */}
-      <nav className="flex-1 py-3">
-        {navSections.map((section) => (
-          <div key={section.title} className="mb-4 px-2">
-            <p
-              className="
-                mb-2
-                overflow-hidden
-                whitespace-nowrap
-                px-2
-                text-[10px]
-                font-semibold
-                uppercase
-                tracking-[0.3em]
-                text-white/25
-                opacity-0
-                transition-opacity
-                group-hover:opacity-100
-              "
-            >
-              {section.title}
-            </p>
+export function Sidebar() {
+  const { open, setOpen } = useMobileNav();
 
-            <div className="space-y-1">
-              {section.items.map((item) => {
-                const active = isNavItemActive(pathname, item.href);
+  return (
+    <>
+      <aside className="group hidden h-screen w-[60px] shrink-0 flex-col border-r border-white/10 bg-[#050914] transition-[width] duration-300 ease-in-out hover:w-[260px] lg:flex">
+        <LogoBlock mobile={false} />
 
-                return (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    className={cn(
-                      `
-    relative
-    flex
-    h-12
-    items-center
-    rounded-xl
-    transition-all
-    duration-300
-    `,
-                      active
-                        ? "bg-white/5 text-white"
-                        : "text-white/60 hover:bg-white/5 hover:text-white",
-                    )}
-                  >
-                    {active && (
-                      <span
-                        className="
-        absolute
-        left-0
-        top-2
-        bottom-2
-        w-1
-        rounded-r-full
-        bg-[#fd6401]
-      "
-                      />
-                    )}
+        <NavSections />
 
-                    {/* Ícone */}
-                    <div
-                      className="
-    flex
-    h-12
-    w-full
-    items-center
-    justify-center
-    group-hover:w-10
-    group-hover:ml-3
-    group-hover:justify-center
-    shrink-0
-    transition-all
-    duration-300
-  "
-                    >
-                      <item.icon className="h-5 w-5" />
-                    </div>
+        <LogoutButton />
+      </aside>
 
-                    {/* Texto */}
-                    <span
-                      className="
-      whitespace-nowrap
-      opacity-0
-      group-hover:opacity-100
-      transition-opacity
-      duration-200
-    "
-                    >
-                      {item.label}
-                    </span>
-                  </Link>
-                );
-              })}
-            </div>
-          </div>
-        ))}
-      </nav>
+      {open && (
+        <div className="fixed inset-0 z-50 lg:hidden">
+          <div
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            onClick={() => setOpen(false)}
+          />
+          <aside className="absolute inset-y-0 left-0 flex w-[280px] max-w-[85vw] flex-col border-r border-white/10 bg-[#050914] shadow-2xl">
+            <LogoBlock mobile onClose={() => setOpen(false)} />
 
-      {/* Rodapé */}
-      <div className="border-t border-white/10 p-3">
-        <button
-  onClick={logout}
-  className="
-    flex
-    h-12
-    w-full
-    items-center
-    rounded-xl
-    text-white/60
-    transition-all
-    hover:bg-red-500/10
-    hover:text-red-400
-  "
->
-  <div
-  className="
-    flex
-    h-12
-    w-12
-    shrink-0
-    items-center
-    justify-center
-    group-hover:w-10
-    group-hover:ml-3
-    transition-all
-    duration-500
-  "
->
-  <LogOut className="h-5 w-5" />
-</div>
+            <NavSections mobile onNavigate={() => setOpen(false)} />
 
-  <span
-    className="
-      whitespace-nowrap
-      opacity-0
-      -translate-x-2
-      transition-all
-      duration-300
-      group-hover:translate-x-0
-      group-hover:opacity-100
-    "
-  >
-    Sair
-  </span>
-</button>
-      </div>
-    </aside>
+            <LogoutButton mobile />
+          </aside>
+        </div>
+      )}
+    </>
   );
 }
