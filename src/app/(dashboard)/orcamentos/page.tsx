@@ -499,8 +499,8 @@ export default function QuotesPage() {
                           size="sm"
                           onClick={() => openEdit(quote)}
                           className="
-                                    h-8
-                                    w-8
+                                    h-10
+                                    w-10
                                     rounded-lg
                                     border
                                     border-white/10
@@ -513,7 +513,7 @@ export default function QuotesPage() {
                                     hover:text-[#fd6401]
                                   "
                                                       >
-                          <Pencil className="h-3.5 w-3.5" />
+                          <Pencil className="h-4 w-4" />
                         </Button>
 
                         <Button
@@ -521,8 +521,8 @@ export default function QuotesPage() {
                           size="sm"
                           onClick={() => handleDelete(quote.id)}
                           className="
-                                    h-8
-                                    w-8
+                                    h-10
+                                    w-10
                                     rounded-lg
                                     border
                                     border-white/10
@@ -535,7 +535,7 @@ export default function QuotesPage() {
                                     hover:text-red-400
                                   "
                                                       >
-                          <Trash2 className="h-3.5 w-3.5" />
+                          <Trash2 className="h-4 w-4" />
                         </Button>
                       </div>
                     </TableCell>

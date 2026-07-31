@@ -87,7 +87,7 @@ export function Header({ title, className }: HeaderProps) {
               className="fixed inset-0 z-40"
               onClick={() => setNotificationsOpen(false)}
             />
-            <div className="absolute right-0 top-full z-50 mt-2 w-80 max-w-[calc(100vw-2rem)] overflow-hidden rounded-2xl border border-white/10 bg-[#0a1120]/95 shadow-2xl shadow-black/50 backdrop-blur-2xl">
+            <div className="fixed left-1/2 top-16 z-50 w-[calc(100vw-2rem)] max-w-80 -translate-x-1/2 overflow-hidden rounded-2xl border border-white/10 bg-[#0a1120]/95 shadow-2xl shadow-black/50 backdrop-blur-2xl sm:absolute sm:left-auto sm:right-0 sm:top-full sm:mt-2 sm:w-80 sm:max-w-[calc(100vw-2rem)] sm:translate-x-0">
               <div className="flex items-center justify-between border-b border-white/10 px-4 py-3">
                 <h3 className="text-sm font-semibold text-white">
                   Notificações

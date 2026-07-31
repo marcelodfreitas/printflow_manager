@@ -179,8 +179,8 @@ export default function ClientPage() {
                             size="sm"
                             onClick={() => openEdit(client)}
                             className="
-      h-8
-      w-8
+      h-10
+      w-10
       rounded-lg
       border
       border-white/10
@@ -193,7 +193,7 @@ export default function ClientPage() {
       hover:text-[#fd6401]
     "
                           >
-                            <Pencil className="h-3.5 w-3.5" />
+                            <Pencil className="h-4 w-4" />
                           </Button>
 
                           <Button
@@ -201,8 +201,8 @@ export default function ClientPage() {
                             size="sm"
                             onClick={() => handleDelete(client.id)}
                             className="
-      h-8
-      w-8
+      h-10
+      w-10
       rounded-lg
       border
       border-white/10
@@ -215,7 +215,7 @@ export default function ClientPage() {
       hover:text-red-400
     "
                           >
-                            <Trash2 className="h-3.5 w-3.5" />
+                            <Trash2 className="h-4 w-4" />
                           </Button>
                         </div>
                       </TableCell>
