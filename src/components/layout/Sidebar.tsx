@@ -13,11 +13,13 @@ import {
   FileText,
   Calculator,
   Boxes,
+  ShieldCheck,
   LogOut,
   X,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useMobileNav } from "@/contexts/MobileNavContext";
+import { isAdmin } from "@/lib/utils";
 import logo from "@/assets/apple-touch-icon.png";
 
 const navSections = [
@@ -111,10 +113,20 @@ function NavSections({
   onNavigate?: () => void;
 }) {
   const pathname = usePathname();
+  const { user } = useAuth();
+
+  const adminSection = {
+    title: "ADMINISTRAÇÃO",
+    items: [{ href: "/admin", label: "Usuários", icon: ShieldCheck }],
+  };
+
+  const sections = isAdmin(user?.email)
+    ? [...navSections, adminSection]
+    : navSections;
 
   return (
     <nav className="flex-1 overflow-y-auto py-3">
-      {navSections.map((section) => (
+      {sections.map((section) => (
         <div key={section.title} className="mb-4 px-2">
           <p
             className={cn(

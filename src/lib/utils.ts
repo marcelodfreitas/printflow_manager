@@ -5,6 +5,12 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
+export const ADMIN_EMAIL = "marcelo.lempek@gmail.com";
+
+export function isAdmin(email?: string | null): boolean {
+  return email?.toLowerCase() === ADMIN_EMAIL;
+}
+
 export function formatCurrency(value: number): string {
   return new Intl.NumberFormat("pt-BR", {
     style: "currency",
@@ -14,6 +20,13 @@ export function formatCurrency(value: number): string {
 
 export function formatDate(date: string): string {
   return new Date(date).toLocaleDateString("pt-BR");
+}
+
+export function formatDateTime(date: string): string {
+  return new Date(date).toLocaleString("pt-BR", {
+    dateStyle: "short",
+    timeStyle: "short",
+  });
 }
 
 export function translateStatus(status: string): string {

@@ -38,13 +38,37 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [supabase.auth]);
 
   async function login(email: string, password: string): Promise<string | null> {
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-    return error?.message ?? null;
+    const res = await fetch("/api/auth/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password }),
+    });
+    const data = await res.json().catch(() => ({}));
+
+    if (data?.error) return data.error;
+
+    const {
+      data: { user: loggedUser },
+    } = await supabase.auth.getUser();
+    if (loggedUser) setUser(loggedUser);
+    return null;
   }
 
   async function register(name: string, email: string, password: string): Promise<string | null> {
-    const { error } = await supabase.auth.signUp({ email, password, options: { data: { name } } });
-    return error?.message ?? null;
+    const res = await fetch("/api/auth/register", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name, email, password }),
+    });
+    const data = await res.json().catch(() => ({}));
+
+    if (data?.error) return data.error;
+
+    const {
+      data: { user: registeredUser },
+    } = await supabase.auth.getUser();
+    if (registeredUser) setUser(registeredUser);
+    return null;
   }
 
   async function logout() {

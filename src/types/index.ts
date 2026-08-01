@@ -5,6 +5,13 @@ export interface User {
   avatar?: string;
 }
 
+export interface PlatformUser {
+  id: string;
+  name: string;
+  email: string;
+  createdAt: string;
+}
+
 export interface Client {
   id: string;
   name: string;
