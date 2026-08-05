@@ -51,14 +51,20 @@ export function Header({ title, className }: HeaderProps) {
   const { user, profile, logout } = useAuth();
 
   const { toggle } = useMobileNav();
-  const { notifications, unreadCount, refresh, markAllRead } = useNotifications();
+  const { notifications, unreadCount, refresh, markAllRead } =
+    useNotifications();
   const [notificationsOpen, setNotificationsOpen] = useState(false);
 
   const router = useRouter();
   const [userMenuOpen, setUserMenuOpen] = useState(false);
 
   return (
-    <header className={cn("sticky top-0 z-30 flex min-h-[56px] items-center gap-3 px-4 sm:px-6", className)}>
+    <header
+      className={cn(
+        "sticky top-0 z-30 flex min-h-[56px] items-center gap-3 px-4 sm:px-6",
+        className,
+      )}
+    >
       <button
         onClick={toggle}
         aria-label="Abrir menu"
@@ -69,7 +75,9 @@ export function Header({ title, className }: HeaderProps) {
 
       <div className="min-w-0 flex-1">
         {title && (
-          <h1 className="truncate text-base font-semibold text-white sm:text-lg">{title}</h1>
+          <h1 className="truncate text-base font-semibold text-white sm:text-lg">
+            {title}
+          </h1>
         )}
       </div>
 
@@ -156,112 +164,107 @@ export function Header({ title, className }: HeaderProps) {
       </div>
 
       <div className="relative">
-
-  <button
-    onClick={() => setUserMenuOpen((prev) => !prev)}
-    className="flex items-center gap-3 border-l border-white/10 pl-3 sm:pl-4"
-  >
-
-    <div className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-[#0d1a35] to-[#071124] text-sm font-medium text-[#fd6401] ring-1 ring-white/10">
-
-      {profile?.avatar_url ? (
-        <img
-          src={profile.avatar_url}
-          alt="Avatar"
-          className="h-full w-full object-cover"
-        />
-      ) : (
-        profile?.full_name?.charAt(0)?.toUpperCase()
-      )}
-
-    </div>
-
-
-    <div className="hidden min-w-0 text-left sm:block">
-
-      <p className="max-w-[160px] truncate text-sm font-medium text-white/90">
-        {profile?.company_name ?? "Minha empresa"}
-      </p>
-
-      <p className="max-w-[160px] truncate text-xs text-white/40">
-        {profile?.full_name}
-      </p>
-
-    </div>
-
-
-    <ChevronDown
-      className={cn(
-        "h-4 w-4 text-white/40 transition-transform",
-        userMenuOpen && "rotate-180"
-      )}
-    />
-
-  </button>
-
-
-  {userMenuOpen && (
-
-    <>
-
-      <div
-        className="fixed inset-0 z-40"
-        onClick={() => setUserMenuOpen(false)}
-      />
-
-
-      <div className="absolute right-0 top-full z-50 mt-3 w-64 overflow-hidden rounded-2xl border border-white/10 bg-[#0a1120]/95 shadow-2xl shadow-black/50 backdrop-blur-xl">
-
-
-        <div className="border-b border-white/10 px-4 py-3">
-
-          <p className="truncate text-sm font-semibold text-white">
-            {profile?.company_name}
-          </p>
-
-          <p className="truncate text-xs text-white/40">
-            {profile?.full_name}
-          </p>
-
-        </div>
-
-
         <button
-          onClick={() => router.push("/profile")}
-          className="flex w-full items-center gap-3 px-4 py-3 text-sm text-white/70 transition hover:bg-white/5 hover:text-white"
+          onClick={() => setUserMenuOpen((prev) => !prev)}
+          className="flex items-center gap-3 border-l border-white/10 pl-3 sm:pl-4"
         >
-          <UserRound className="h-4 w-4" />
-          Meu perfil
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-[#0d1a35] to-[#071124] text-sm font-medium text-[#fd6401] ring-1 ring-white/10">
+            {profile?.avatar_url ? (
+              <img
+                src={profile.avatar_url}
+                alt="Avatar"
+                className="h-full w-full object-cover"
+              />
+            ) : (
+              profile?.full_name?.charAt(0)?.toUpperCase()
+            )}
+          </div>
+
+          <div className="hidden min-w-0 text-left sm:block">
+            <p className="max-w-[160px] truncate text-sm font-medium text-white/90">
+              {profile?.company_name ?? "Minha empresa"}
+            </p>
+
+            <p className="max-w-[160px] truncate text-xs text-white/40">
+              {profile?.full_name}
+            </p>
+          </div>
+
+          <ChevronDown
+            className={cn(
+              "h-4 w-4 text-white/40 transition-transform",
+              userMenuOpen && "rotate-180",
+            )}
+          />
         </button>
 
+        {userMenuOpen && (
+          <>
+            <div
+              className="fixed inset-0 z-40"
+              onClick={() => setUserMenuOpen(false)}
+            />
 
-        <button
-          className="flex w-full items-center gap-3 px-4 py-3 text-sm text-white/70 transition hover:bg-white/5 hover:text-white"
-        >
-          <Settings className="h-4 w-4" />
-          Configurações
-        </button>
+<div
+  className="
+    fixed
+    left-4
+    right-4
+    top-16
+    z-50
 
+    sm:absolute
+    sm:left-auto
+    sm:right-0
+    sm:top-full
+    sm:mt-3
+    sm:w-64
 
-        <div className="border-t border-white/10" />
+    overflow-hidden
+    rounded-2xl
+    border
+    border-white/10
+    bg-[#0a1120]/95
+    shadow-2xl
+    shadow-black/50
+    backdrop-blur-xl
+  "
+>              <div className="border-b border-white/10 px-4 py-3">
+                <p className="truncate text-sm font-semibold text-white">
+                  {profile?.company_name}
+                </p>
 
+                <p className="truncate text-xs text-white/40">
+                  {profile?.full_name}
+                </p>
+              </div>
 
-        <button
-          onClick={logout}
-          className="flex w-full items-center gap-3 px-4 py-3 text-sm text-red-400 transition hover:bg-red-500/10"
-        >
-          <LogOut className="h-4 w-4" />
-          Sair
-        </button>
+              <button
+                onClick={() => router.push("/profile")}
+                className="flex w-full items-center gap-3 px-4 py-3 text-sm text-white/70 transition hover:bg-white/5 hover:text-white"
+              >
+                <UserRound className="h-4 w-4" />
+                Meu perfil
+              </button>
 
+              <button className="flex w-full items-center gap-3 px-4 py-3 text-sm text-white/70 transition hover:bg-white/5 hover:text-white">
+                <Settings className="h-4 w-4" />
+                Configurações
+              </button>
 
+              <div className="border-t border-white/10" />
+
+              <button
+                onClick={logout}
+                className="flex w-full items-center gap-3 px-4 py-3 text-sm text-red-400 transition hover:bg-red-500/10"
+              >
+                <LogOut className="h-4 w-4" />
+                Sair
+              </button>
+            </div>
+          </>
+        )}
       </div>
-
-    </>
-
-  )}
-
-</div>
     </header>
   );
 }
