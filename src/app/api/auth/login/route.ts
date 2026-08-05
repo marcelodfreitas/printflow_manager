@@ -7,14 +7,20 @@ export async function POST(request: NextRequest) {
   const ip = getIp(request);
 
   const { success } = await authLimiter.limit(ip);
+
   if (!success) {
     return NextResponse.json(
-      { error: "Muitas tentativas de login. Aguarde alguns minutos e tente novamente." },
-      { status: 429 },
+      {
+        error: "Muitas tentativas de login. Aguarde alguns minutos e tente novamente.",
+      },
+      {
+        status: 429,
+      },
     );
   }
 
   const body = await request.json().catch(() => ({}));
+
   const email = typeof body.email === "string" ? body.email : "";
   const password = typeof body.password === "string" ? body.password : "";
 
@@ -25,7 +31,8 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const cookieStore = cookies();
+  const cookieStore = await cookies();
+
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -34,6 +41,7 @@ export async function POST(request: NextRequest) {
         getAll() {
           return cookieStore.getAll();
         },
+
         setAll(cookiesToSet) {
           cookiesToSet.forEach(({ name, value, options }) =>
             cookieStore.set(name, value, options),
@@ -43,11 +51,45 @@ export async function POST(request: NextRequest) {
     },
   );
 
-  const { error } = await supabase.auth.signInWithPassword({ email, password });
+  console.log("ANTES DO LOGIN");
+
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email,
+    password,
+  });
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 401 });
+    console.error("ERRO SUPABASE LOGIN:", error);
+
+    return NextResponse.json(
+      {
+        error: error.message,
+      },
+      {
+        status: 401,
+      },
+    );
   }
 
-  return NextResponse.json({ ok: true });
+  if (data.session) {
+    console.log(
+      "ACCESS TOKEN LENGTH:",
+      data.session.access_token.length
+    );
+
+    console.log(
+      "APP METADATA:",
+      JSON.stringify(data.user?.app_metadata)
+    );
+
+    console.log(
+      "USER METADATA:",
+      JSON.stringify(data.user?.user_metadata)
+    );
+  }
+
+  return NextResponse.json({
+    success: true,
+    user: data.user,
+  });
 }
