@@ -143,38 +143,39 @@ function NavSections({
 
               return (
                 <Link
-                  key={item.href}
-                  href={item.href}
-                  onClick={onNavigate}
-                  className={cn(
-                    "group/item relative flex h-10 items-center rounded-xl transition-all duration-300",
-                    mobile ? "h-11 gap-3 px-3 text-sm font-medium" : "px-1",
-                    mobile && active && "accent-bg text-white accent-shadow",
-                  )}
-                >
-                  {/* ÍCONE */}
-                  <div
-                    className={cn(
-                      "flex h-9 w-9 shrink-0 items-center justify-center rounded-xl transition-colors duration-200",
-                      active
-                        ? "accent-bg text-white"
-                        : "bg-white/5 text-white/70 group-hover/item:bg-white/10 group-hover/item:text-white",
-                    )}
-                  >
-                    <item.icon className="h-5 w-5" />
-                  </div>
+  key={item.href}
+  href={item.href}
+  onClick={onNavigate}
+  className={cn(
+    "group/item relative flex h-10 items-center rounded-xl transition-all duration-300",
+    mobile ? "h-11 gap-3 px-3 text-sm font-medium" : "px-1",
+    mobile && active && "bg-[var(--accent)] text-white accent-shadow",
+  )}
+>
+  {/* ÍCONE */}
+  <div
+    className={cn(
+      "flex h-9 w-9 shrink-0 items-center justify-center rounded-xl transition-all duration-200",
+      active
+  ? "bg-[var(--accent)] text-white"
+        : "bg-white/5 text-white/70 group-hover/item:bg-white/10 group-hover/item:text-white",
+    )}
+  >
+    <item.icon className="h-5 w-5" />
+  </div>
 
-                  {/* NOME */}
-                  <span
-                    className={cn(
-                      "ml-2 whitespace-nowrap text-sm font-medium transition-all duration-300",
-                      !mobile &&
-                        "w-0 overflow-hidden opacity-0 group-hover:w-auto group-hover:opacity-100",
-                    )}
-                  >
-                    {item.label}
-                  </span>
-                </Link>
+  {/* NOME */}
+  <span
+    className={cn(
+      "ml-2 whitespace-nowrap text-sm font-medium transition-all duration-300",
+      !mobile &&
+        "w-0 overflow-hidden opacity-0 group-hover:w-auto group-hover:opacity-100",
+      active && "text-white",
+    )}
+  >
+    {item.label}
+  </span>
+</Link>
               );
             })}
           </div>

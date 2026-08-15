@@ -112,7 +112,7 @@
   }
 
   .accent-bg {
-    background-color: var(--accent);
+    background-color: var(--accent) !important;
   }
 
   .accent-border {

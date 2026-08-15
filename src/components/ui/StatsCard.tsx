@@ -28,7 +28,7 @@ export function StatsCard({
               {title}
             </p>
 
-            <p className="text-xl font-bold text-white sm:text-2xl">
+            <p className="text-[17px] font-bold text-white sm:text-2xl">
               {value}
             </p>
 

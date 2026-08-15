@@ -196,7 +196,7 @@ function formatWhatsapp(value: string) {
             <Button
               onClick={handleSave}
               disabled={saving}
-              className="w-full sm:w-auto m-auto rounded-xl accent-bg px-5 py-2.5 text-sm font-semibold text-white transition-all duration-200 hover:bg-[#ff7b24] hover:shadow-lg hover:shadow-[var(--accent)]/20 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50"
+              className="w-full sm:w-auto m-auto rounded-xl accent-bg px-5 py-2.5 text-sm font-semibold text-white transition-all duration-200 hover:accent-bg hover:shadow-lg hover:shadow-[var(--accent)]/20 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50"
             >
               {saving ? "Salvando..." : "Salvar alterações"}
             </Button>

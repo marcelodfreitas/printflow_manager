@@ -266,15 +266,12 @@ export function Header({ title, className }: HeaderProps) {
                   {profile?.full_name}
                 </p>
               </div>
-              {/* <button
-                onClick={() => router.push("/settings/profile")}
-                className="flex w-full items-center gap-3 px-4 py-3 text-sm text-white/70 transition hover:bg-white/5 hover:text-white"
-              >
-                <UserRound className="h-4 w-4" />
-                Meu perfil
-              </button> */}
+              
               <button
-                onClick={() => router.push("/settings")}
+                onClick={() => {
+                  setUserMenuOpen(false);
+                  router.push("/settings");
+                }}
                 className="flex w-full items-center gap-3 px-4 py-3 text-sm text-white/70 transition hover:bg-white/5 hover:text-white"
               >
                 <Settings className="h-4 w-4" />
@@ -282,7 +279,10 @@ export function Header({ title, className }: HeaderProps) {
               </button>
               <div className="border-t border-white/10" />
               <button
-                onClick={logout}
+                onClick={() => {
+                  setUserMenuOpen(false);
+                  logout();
+                }}
                 className="flex w-full items-center gap-3 px-4 py-3 text-sm text-red-400 transition hover:bg-red-500/10"
               >
                 <LogOut className="h-4 w-4" />

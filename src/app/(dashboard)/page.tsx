@@ -204,7 +204,7 @@ export default function DashboardPage() {
     className="
       group relative overflow-hidden rounded-3xl
       border border-white/10
-      bg-white/[0.03]
+      bg-[var(--accent)]
       text-white
       backdrop-blur-xl
       transition-all duration-300
