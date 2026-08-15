@@ -13,7 +13,7 @@ import {
   Settings,
   LogOut,
 } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 import { useMobileNav } from "@/contexts/MobileNavContext";
 import { useNotifications } from "@/hooks/useNotifications";
@@ -48,6 +48,34 @@ function NotificationIcon({ type }: { type: AppNotification["type"] }) {
 }
 
 export function Header({ title, className }: HeaderProps) {
+  const pathname = usePathname();
+
+  const pageTitles: Record<string, string> = {
+    "/": "Dashboard",
+    "/clientes": "Clientes",
+    "/produtos": "Produtos",
+    "/pedidos": "Pedidos",
+    "/orcamentos": "Orçamentos",
+    "/calculadora": "Calculadora de Custos",
+    "/impressoras": "Impressoras",
+    "/filamentos": "Filamentos",
+    "/settings": "Configurações",
+    "/settings/profile": "Conta",
+    "/settings/notifications": "Notificações",
+    "/settings/appearance": "Aparência",
+    "/settings/system": "Sistema",
+    "/settings/printers": "Impressoras",
+    "/admin": "Administração",
+  };
+
+  const currentTitle =
+    title ||
+    pageTitles[pathname] ||
+    Object.entries(pageTitles).find(
+      ([path]) => path !== "/" && pathname.startsWith(`${path}/`),
+    )?.[1] ||
+    "PrintFlow";
+
   const { user, profile, logout } = useAuth();
 
   const { toggle } = useMobileNav();
@@ -61,7 +89,7 @@ export function Header({ title, className }: HeaderProps) {
   return (
     <header
       className={cn(
-        "sticky top-0 z-30 flex min-h-[56px] items-center gap-3 px-4 sm:px-6",
+        "sticky top-0 z-30 flex min-h-[72px] shrink-0 items-center gap-3 border-b border-white/10 bg-[#050914]/95 px-4 backdrop-blur-xl sm:px-6",
         className,
       )}
     >
@@ -74,11 +102,9 @@ export function Header({ title, className }: HeaderProps) {
       </button>
 
       <div className="min-w-0 flex-1">
-        {title && (
-          <h1 className="truncate text-base font-semibold text-white sm:text-lg">
-            {title}
-          </h1>
-        )}
+        <h1 className="truncate text-base font-semibold text-white sm:text-lg">
+          {currentTitle}
+        </h1>
       </div>
 
       <div className="relative">
@@ -92,7 +118,7 @@ export function Header({ title, className }: HeaderProps) {
         >
           <Bell className="h-5 w-5" />
           {unreadCount > 0 && (
-            <span className="absolute right-0.5 top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-[#fd6401] px-1 text-[10px] font-semibold text-white ring-2 ring-[#050914]">
+            <span className="absolute right-0.5 top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full accent-bg px-1 text-[10px] font-semibold text-white ring-2 ring-[#050914]">
               {unreadCount}
             </span>
           )}
@@ -111,7 +137,7 @@ export function Header({ title, className }: HeaderProps) {
                 </h3>
                 <button
                   onClick={markAllRead}
-                  className="flex items-center gap-1 text-xs font-medium text-[#fd6401] transition hover:text-[#ff7b24]"
+                  className="flex items-center gap-1 text-xs font-medium accent-text transition hover:text-[#ff7b24]"
                 >
                   <CheckCheck className="h-3.5 w-3.5" />
                   Marcar todas
@@ -129,7 +155,7 @@ export function Header({ title, className }: HeaderProps) {
                       key={notification.id}
                       className="flex items-start gap-3 border-b border-white/5 px-4 py-3 transition hover:bg-white/5"
                     >
-                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-white/5 text-[#fd6401] ring-1 ring-white/10">
+                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-white/5 accent-text ring-1 ring-white/10">
                         <NotificationIcon type={notification.type} />
                       </div>
 
@@ -146,7 +172,7 @@ export function Header({ title, className }: HeaderProps) {
                       </div>
 
                       {!notification.read && (
-                        <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-[#fd6401]" />
+                        <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full accent-bg" />
                       )}
                     </div>
                   ))
@@ -168,7 +194,7 @@ export function Header({ title, className }: HeaderProps) {
           onClick={() => setUserMenuOpen((prev) => !prev)}
           className="flex items-center gap-3 border-l border-white/10 pl-3 sm:pl-4"
         >
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-[#0d1a35] to-[#071124] text-sm font-medium text-[#fd6401] ring-1 ring-white/10">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-[#0d1a35] to-[#071124] text-sm font-medium accent-text ring-1 ring-white/10">
             {profile?.avatar_url ? (
               <img
                 src={profile.avatar_url}
@@ -205,8 +231,8 @@ export function Header({ title, className }: HeaderProps) {
               onClick={() => setUserMenuOpen(false)}
             />
 
-<div
-  className="
+            <div
+              className="
     fixed
     left-4
     right-4
@@ -229,7 +255,9 @@ export function Header({ title, className }: HeaderProps) {
     shadow-black/50
     backdrop-blur-xl
   "
->              <div className="border-b border-white/10 px-4 py-3">
+            >
+              {" "}
+              <div className="border-b border-white/10 px-4 py-3">
                 <p className="truncate text-sm font-semibold text-white">
                   {profile?.company_name}
                 </p>
@@ -238,22 +266,21 @@ export function Header({ title, className }: HeaderProps) {
                   {profile?.full_name}
                 </p>
               </div>
-
-              <button
-                onClick={() => router.push("/profile")}
+              {/* <button
+                onClick={() => router.push("/settings/profile")}
                 className="flex w-full items-center gap-3 px-4 py-3 text-sm text-white/70 transition hover:bg-white/5 hover:text-white"
               >
                 <UserRound className="h-4 w-4" />
                 Meu perfil
-              </button>
-
-              <button className="flex w-full items-center gap-3 px-4 py-3 text-sm text-white/70 transition hover:bg-white/5 hover:text-white">
+              </button> */}
+              <button
+                onClick={() => router.push("/settings")}
+                className="flex w-full items-center gap-3 px-4 py-3 text-sm text-white/70 transition hover:bg-white/5 hover:text-white"
+              >
                 <Settings className="h-4 w-4" />
                 Configurações
               </button>
-
               <div className="border-t border-white/10" />
-
               <button
                 onClick={logout}
                 className="flex w-full items-center gap-3 px-4 py-3 text-sm text-red-400 transition hover:bg-red-500/10"

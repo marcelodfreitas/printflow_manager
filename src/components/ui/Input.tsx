@@ -1,37 +1,80 @@
-import { forwardRef, type InputHTMLAttributes } from "react";
-import { cn } from "@/lib/utils";
+import { InputHTMLAttributes, ReactNode } from "react";
 
 interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   label?: string;
   error?: string;
+  icon?: ReactNode;
 }
 
-export const Input = forwardRef<HTMLInputElement, InputProps>(
-  ({ className, label, error, id, ...props }, ref) => {
-    return (
-      <div className="w-full">
-        {label && (
-          <label
-            htmlFor={id}
-            className="mb-1 block text-sm font-medium text-gray-700"
-          >
-            {label}
-          </label>
-        )}
-        <input
-          ref={ref}
-          id={id}
-          className={cn(
-            "block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm transition-colors placeholder:text-gray-400 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500",
-            error && "border-red-500 focus:border-red-500 focus:ring-red-500",
-            className
-          )}
-          {...props}
-        />
-        {error && <p className="mt-1 text-xs text-red-500">{error}</p>}
-      </div>
-    );
-  }
-);
+export default function Input({
+  label,
+  error,
+  icon,
+  className = "",
+  ...props
+}: InputProps) {
+  return (
+    <div className="flex flex-col gap-2">
 
-Input.displayName = "Input";
+      {label && (
+        <label className="text-sm font-medium text-white">
+          {label}
+        </label>
+      )}
+
+      <div className="relative">
+
+        {icon && (
+          <div className="
+            absolute 
+            left-3 
+            top-1/2 
+            -translate-y-1/2
+            text-muted
+          ">
+            {icon}
+          </div>
+        )}
+
+        <input
+          {...props}
+          className={`
+            w-full
+            rounded-xl
+            border
+            border-white/10
+            bg-white/[0.03]
+            px-4
+            py-3
+            text-white
+            placeholder:text-muted
+            outline-none
+            transition-all
+            focus:border-primary
+            focus:ring-2
+            focus:ring-primary/20
+
+            ${icon ? "pl-11" : ""}
+
+            ${
+              error
+                ? "border-danger focus:border-danger focus:ring-danger/20"
+                : ""
+            }
+
+            ${className}
+          `}
+        />
+
+      </div>
+
+
+      {error && (
+        <span className="text-xs text-danger">
+          {error}
+        </span>
+      )}
+
+    </div>
+  );
+}

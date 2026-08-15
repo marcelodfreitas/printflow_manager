@@ -31,7 +31,7 @@ interface SelectProps {
   onChange?: (event: React.ChangeEvent<HTMLSelectElement>) => void;
 }
 
-export function Select({
+export default function Select({
   id,
   label,
   value,
@@ -93,10 +93,10 @@ export function Select({
 
             hover:border-white/20
 
-            focus:border-[#fd6401]/60
+            focus:border-[var(--accent)]/60
             focus:outline-none
             focus:ring-2
-            focus:ring-[#fd6401]/20
+            focus:ring-[var(--accent)]/20
 
             data-[placeholder]:text-white/30
             disabled:opacity-50
@@ -170,16 +170,16 @@ export function Select({
                     outline-none
                     transition-all
 
-                    hover:bg-[#fd6401]/15
-                    focus:bg-[#fd6401]/15
+                    hover:accent-bg/15
+                    focus:accent-bg/15
 
-                    data-[state=checked]:bg-[#fd6401]/20
+                    data-[state=checked]:accent-bg/20
                     data-[state=checked]:text-white
                   "
                 >
                   <span className="absolute left-3 flex h-4 w-4 items-center justify-center">
                     <SelectPrimitive.ItemIndicator>
-                      <Check className="h-4 w-4 text-[#fd6401]" />
+                      <Check className="h-4 w-4 accent-text" />
                     </SelectPrimitive.ItemIndicator>
                   </span>
 

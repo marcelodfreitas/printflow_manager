@@ -9,23 +9,25 @@ const config: Config = {
   theme: {
     extend: {
   colors: {
-    primary: "#071124",
-    secondary: "#FD6401",
+  primary: "#071124",
+  secondary: "var(--accent)",
 
-    background: "#020617",
-    surface: "#0A1120",
-    surfaceLight: "#111827",
+  accent: "var(--accent)",
 
-    foreground: "#FFFFFF",
-    muted: "#94A3B8",
+  background: "#020617",
+  surface: "#0A1120",
+  surfaceLight: "#111827",
 
-    border: "#1E293B",
+  foreground: "#FFFFFF",
+  muted: "#94A3B8",
 
-    success: "#10B981",
-    warning: "#F59E0B",
-    danger: "#EF4444",
-    info: "#3B82F6",
-  },
+  border: "#1E293B",
+
+  success: "#10B981",
+  warning: "#F59E0B",
+  danger: "#EF4444",
+  info: "#3B82F6",
+},
 
   borderRadius: {
     xl: "1rem",

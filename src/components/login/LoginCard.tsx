@@ -11,7 +11,7 @@ import {
   Sparkles,
   User,
 } from "lucide-react";
-import { Button } from "@/components/ui/Button";
+import Button from "@/components/ui/Button";
 import { useAuth } from "@/contexts/AuthContext";
 
 export function LoginCard() {
@@ -163,7 +163,7 @@ export function LoginCard() {
           <button
             type="button"
             onClick={() => selectMode(mode === "login" ? "register" : "login")}
-            className="font-semibold text-white transition hover:text-[#fd6401]"
+            className="font-semibold text-white transition hover:accent-text"
           >
             {mode === "login" ? "Criar acesso" : "Fazer login"}
           </button>

@@ -4,11 +4,10 @@ import { useState } from "react";
 import { jsPDF } from "jspdf";
 import { Plus, Search, FileDown, Trash2, Pencil } from "lucide-react";
 import logo from "@/assets/logo.png";
-import { Header } from "@/components/layout/Header";
-import { Button } from "@/components/ui/Button";
-import { Input } from "@/components/ui/Input";
-import { Select } from "@/components/ui/Select";
-import { Card, CardContent, CardHeader } from "@/components/ui/Card";
+import Button from "@/components/ui/Button";
+import Input from "@/components/ui/Input";
+import Select from "@/components/ui/Select";
+import { Card, CardContent, CardHeader } from "@/components/common";
 import {
   Table,
   TableBody,
@@ -17,8 +16,8 @@ import {
   TableHeadCell,
   TableRow,
 } from "@/components/ui/Table";
-import { Modal } from "@/components/ui/Modal";
-import { StatusBadge } from "@/components/ui/Badge";
+import Modal from "@/components/ui/Modal";
+import { Badge as StatusBadge } from "@/components/ui/Badge";
 import type { Quote, QuoteItem } from "@/types";
 import { useQuotes } from "@/hooks/useQuotes";
 import { useClients } from "@/hooks/useClients";
@@ -313,7 +312,7 @@ export default function QuotesPage() {
     return (
       <div className="relative min-h-screen bg-[#050914]">
         <div className="flex items-center justify-center h-96">
-          <div className="h-8 w-8 animate-spin rounded-full border-2 border-white/20 border-t-[#fd6401]" />
+          <div className="h-8 w-8 animate-spin rounded-full border-2 border-white/20 border-t-[var(--accent)]" />
         </div>
       </div>
     );
@@ -323,15 +322,11 @@ export default function QuotesPage() {
     <div className="relative min-h-screen bg-[#050914]">
       <div className="pointer-events-none fixed -bottom-40 -right-40 h-[500px] w-[500px] rounded-full bg-[#071124]/60 blur-[120px]" />
       <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(255,255,255,0.06)_1px,transparent_0)] bg-[size:32px_32px]" />
-      <Header
-        title="Orçamentos"
-        className="border-b border-white/10 bg-white/[0.02] backdrop-blur-xl text-white"
-      />
 
       <div className="space-y-5 px-4 py-5 sm:p-6 sm:space-y-6">
         <div className="grid gap-4 sm:grid-cols-3">
           <Card className="border border-white/10 bg-[#050914] backdrop-blur-2xl shadow-2xl shadow-black/40">
-            <CardContent>
+            <CardContent className="p-6">
               <p className="text-sm text-white">Total de Orçamentos</p>
               <p className="text-2xl font-bold text-white/50">
                 {quotes.length}
@@ -340,7 +335,7 @@ export default function QuotesPage() {
           </Card>
 
           <Card className="border border-white/10 bg-[#050914] backdrop-blur-2xl shadow-2xl shadow-black/40">
-            <CardContent>
+            <CardContent className="p-6">
               <p className="text-sm text-white">Aprovados</p>
               <p className="text-2xl font-bold text-green-600">
                 {quotes.filter((q) => q.status === "approved").length}
@@ -349,7 +344,7 @@ export default function QuotesPage() {
           </Card>
 
           <Card className="border border-white/10 bg-[#050914] backdrop-blur-2xl shadow-2xl shadow-black/40">
-            <CardContent>
+            <CardContent className="p-6">
               <p className="text-sm text-white">Valor Total Aprovado</p>
               <p className="text-2xl font-bold text-white/50">
                 {formatCurrency(
@@ -362,36 +357,27 @@ export default function QuotesPage() {
           </Card>
         </div>
 
-        <Card className="border border-white/10 bg-[#050914] backdrop-blur-2xl shadow-2xl shadow-black/40">
+        <Card className="border border-white/10 bg-white/[0.03] backdrop-blur-2xl shadow-2xl shadow-black/40">
+          {" "}
           <CardHeader>
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div className="flex flex-1 flex-col gap-3 sm:flex-row sm:gap-4">
-                <div className="relative w-full max-w-sm">
-                  <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/40" />
-                  <input
+                <div className="relative w-full flex-1 sm:max-w-xs">
+                  <Input
                     type="text"
-                    placeholder="Buscar orçamentos..."
-                    className="
-                              h-11
-                              w-full
-                              rounded-xl
-                              border
-                              border-white/10
-                              bg-white/5
-                              pl-10
-                              pr-4
-                              text-sm
-                              text-white
-                              placeholder:text-white/30
-                              outline-none
-                              transition-all
-                              duration-300
-                              focus:border-[#fd6401]/50
-                              focus:ring-2
-                              focus:ring-[#fd6401]/20
-                            "
+                    placeholder="Buscar clientes..."
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
+                    icon={<Search className="h-4 w-4" />}
+                    className="
+      h-11
+      bg-white/5
+      border-white/10
+      text-white
+      placeholder:text-white/30
+      focus:border-[var(--accent)]/50
+      focus:ring-[var(--accent)]/20
+    "
                   />
                 </div>
                 <Select
@@ -406,8 +392,8 @@ export default function QuotesPage() {
                             bg-white/5
                             border-white/10
                             text-white
-                            focus:border-[#fd6401]/50
-                            focus:ring-[#fd6401]/20
+                            focus:border-[var(--accent)]/50
+                            focus:ring-[var(--accent)]/20
                           "
                   onChange={(e) => setStatusFilter(e.target.value)}
                 />
@@ -415,15 +401,7 @@ export default function QuotesPage() {
 
               <Button
                 onClick={openCreate}
-                className="
-                          bg-gradient-to-r
-                          from-[#071124]
-                          to-[#0d1a35]
-                          text-white
-                          ring-1
-                          ring-white/10
-                          hover:ring-[#fd6401]/30
-                        "
+                className="bg-gradient-to-r from-[#071124] to-[#0d1a35] text-white shadow-lg shadow-black/30 ring-1 ring-white/10 transition-all duration-300 hover:shadow-[0_8px_30px_rgba(var(--accent-rgb),0.20)] hover:ring-[rgba(var(--accent-rgb),0.30)]"
               >
                 <Plus className="h-4 w-4" />
                 Novo Orçamento
@@ -431,127 +409,327 @@ export default function QuotesPage() {
             </div>
           </CardHeader>
           <CardContent className="p-0">
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableHeadCell className="text-center text-white/50">
-                    Orçamento
-                  </TableHeadCell>
-                  <TableHeadCell className="text-center text-white/50">
-                    Produto
-                  </TableHeadCell>
-                  <TableHeadCell className="text-center text-white/50">
-                    Cliente
-                  </TableHeadCell>
-                  <TableHeadCell className="text-center text-white/50">
-                    Itens
-                  </TableHeadCell>
-                  <TableHeadCell className="text-center text-white/50">
-                    Subtotal
-                  </TableHeadCell>
-                  <TableHeadCell className="text-center text-white/50">
-                    Total
-                  </TableHeadCell>
-                  <TableHeadCell className="text-center text-white/50">
-                    Status
-                  </TableHeadCell>
-                  <TableHeadCell className="text-center text-white/50">
-                    Validade
-                  </TableHeadCell>
-                  <TableHeadCell className="text-center text-white/50">
-                    Criação
-                  </TableHeadCell>
-                  <TableHeadCell className="text-center text-white/50">
-                    Ações
-                  </TableHeadCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {filtered.map((quote) => (
-                  <TableRow key={quote.id}>
-                    <TableCell className="text-center font-center font-mono text-xs font-medium">
-                      #{quote.quoteNumber ?? quote.id}
-                    </TableCell>
-                    <TableCell className="text-center text-xs">
-                      {quote.productName || "—"}
-                    </TableCell>
-                    <TableCell>{quote.clientName}</TableCell>
-                    <TableCell className="text-xs">
-                      {quote.items.length} item(ns)
-                    </TableCell>
-                    <TableCell>{formatCurrency(quote.subtotal)}</TableCell>
-                    <TableCell className="font-medium">
-                      {formatCurrency(quote.total)}
-                    </TableCell>
-                    <TableCell>
-                      <StatusBadge status={quote.status} />
-                    </TableCell>
-                    <TableCell className="text-xs">
-                      {formatDate(quote.validUntil)}
-                    </TableCell>
-                    <TableCell className="text-xs">
-                      {formatDate(quote.createdAt)}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex items-center justify-end gap-1.5">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => openEdit(quote)}
-                          className="
-                                    h-10
-                                    w-10
-                                    rounded-lg
-                                    border
-                                    border-white/10
-                                    bg-white/[0.03]
-                                    text-white/60
-                                    transition-all
-                                    duration-200
-                                    hover:border-[#fd6401]/40
-                                    hover:bg-[#fd6401]/10
-                                    hover:text-[#fd6401]
-                                  "
-                                                      >
-                          <Pencil className="h-4 w-4" />
-                        </Button>
-
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleDelete(quote.id)}
-                          className="
-                                    h-10
-                                    w-10
-                                    rounded-lg
-                                    border
-                                    border-white/10
-                                    bg-white/[0.03]
-                                    text-white/60
-                                    transition-all
-                                    duration-200
-                                    hover:border-red-500/40
-                                    hover:bg-red-500/10
-                                    hover:text-red-400
-                                  "
-                                                      >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
-                {filtered.length === 0 && (
+            {/* DESKTOP — tabela */}
+            <div className="hidden md:block">
+              <Table>
+                <TableHead>
                   <TableRow>
-                    <TableCell colSpan={10}>
-                      <div className="py-8 text-center text-sm text-gray-500">
-                        Nenhum orçamento encontrado
-                      </div>
-                    </TableCell>
+                    <TableHeadCell className="text-center text-white/50">
+                      Orçamento
+                    </TableHeadCell>
+
+                    <TableHeadCell className="text-center text-white/50">
+                      Produto
+                    </TableHeadCell>
+
+                    <TableHeadCell className="text-center text-white/50">
+                      Cliente
+                    </TableHeadCell>
+
+                    <TableHeadCell className="text-center text-white/50">
+                      Itens
+                    </TableHeadCell>
+
+                    <TableHeadCell className="text-center text-white/50">
+                      Subtotal
+                    </TableHeadCell>
+
+                    <TableHeadCell className="text-center text-white/50">
+                      Total
+                    </TableHeadCell>
+
+                    <TableHeadCell className="text-center text-white/50">
+                      Status
+                    </TableHeadCell>
+
+                    <TableHeadCell className="text-center text-white/50">
+                      Validade
+                    </TableHeadCell>
+
+                    <TableHeadCell className="text-center text-white/50">
+                      Criação
+                    </TableHeadCell>
+
+                    <TableHeadCell className="text-center text-white/50">
+                      Ações
+                    </TableHeadCell>
                   </TableRow>
-                )}
-              </TableBody>
-            </Table>
+                </TableHead>
+
+                <TableBody>
+                  {filtered.map((quote) => (
+                    <TableRow key={quote.id}>
+                      <TableCell className="text-center font-mono text-xs font-medium">
+                        #{quote.quoteNumber ?? quote.id}
+                      </TableCell>
+
+                      <TableCell className="text-center text-xs">
+                        {quote.productName || "—"}
+                      </TableCell>
+
+                      <TableCell className="text-center">
+                        {quote.clientName}
+                      </TableCell>
+
+                      <TableCell className="text-center text-xs">
+                        {quote.items.length} item(ns)
+                      </TableCell>
+
+                      <TableCell className="text-center">
+                        {formatCurrency(quote.subtotal)}
+                      </TableCell>
+
+                      <TableCell className="text-center font-medium">
+                        {formatCurrency(quote.total)}
+                      </TableCell>
+
+                      <TableCell className="text-center">
+                        <StatusBadge status={quote.status} />
+                      </TableCell>
+
+                      <TableCell className="text-center text-xs">
+                        {formatDate(quote.validUntil)}
+                      </TableCell>
+
+                      <TableCell className="text-center text-xs">
+                        {formatDate(quote.createdAt)}
+                      </TableCell>
+
+                      <TableCell className="text-right">
+                        <div className="flex items-center justify-end gap-1.5">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => openEdit(quote)}
+                            className="
+                    h-10
+                    w-10
+                    rounded-lg
+                    border
+                    border-white/10
+                    bg-white/[0.03]
+                    text-white/60
+                    transition-all
+                    duration-200
+                    hover:border-[var(--accent)]/40
+                    hover:accent-bg
+                    hover:accent-text
+                  "
+                          >
+                            <Pencil className="h-4 w-4" />
+                          </Button>
+
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleDelete(quote.id)}
+                            className="
+                    h-10
+                    w-10
+                    rounded-lg
+                    border
+                    border-white/10
+                    bg-white/[0.03]
+                    text-white/60
+                    transition-all
+                    duration-200
+                    hover:border-red-500/40
+                    hover:bg-red-500/10
+                    hover:text-red-400
+                  "
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+
+                  {filtered.length === 0 && (
+                    <TableRow>
+                      <TableCell colSpan={10}>
+                        <div className="py-8 text-center text-sm text-gray-500">
+                          Nenhum orçamento encontrado
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </div>
+
+            {/* MOBILE — cards */}
+            <div className="space-y-3 p-4 md:hidden">
+              {filtered.map((quote) => (
+                <div
+                  key={quote.id}
+                  className="rounded-2xl
+          border
+          border-white/10
+          bg-white/[0.03]
+          p-4
+          shadow-lg
+          shadow-black/20
+          backdrop-blur-2xl"
+                >
+                  <div className="space-y-4">
+                    {/* Cabeçalho */}
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0">
+                        <p className="text-[11px] font-medium uppercase tracking-wider text-white/35">
+                          Orçamento
+                        </p>
+
+                        <p className="mt-1 font-mono text-sm font-semibold text-white">
+                          #{quote.quoteNumber ?? quote.id}
+                        </p>
+                      </div>
+
+                      <div className="shrink-0">
+                        <StatusBadge status={quote.status} />
+                      </div>
+                    </div>
+
+                    {/* Cliente */}
+                    <div>
+                      <p className="text-[11px] font-medium uppercase tracking-wider text-white/35">
+                        Cliente
+                      </p>
+
+                      <p className="mt-1 truncate text-sm font-medium text-white">
+                        {quote.clientName}
+                      </p>
+                    </div>
+
+                    {/* Produto */}
+                    <div>
+                      <p className="text-[11px] font-medium uppercase tracking-wider text-white/35">
+                        Produto
+                      </p>
+
+                      <p className="mt-1 text-sm text-white/70">
+                        {quote.productName || "—"}
+                      </p>
+                    </div>
+
+                    {/* Total */}
+                    <div className="rounded-xl border border-white/10 px-4 py-3">
+                      <div className="flex items-center justify-between gap-4">
+                        <div>
+                          <p className="text-[11px] font-medium uppercase tracking-wider text-white/35">
+                            Total
+                          </p>
+
+                          <p className="mt-1 text-lg font-bold text-white">
+                            {formatCurrency(quote.total)}
+                          </p>
+                        </div>
+
+                        <div className="text-right">
+                          <p className="text-[11px] font-medium uppercase tracking-wider text-white/35">
+                            Subtotal
+                          </p>
+
+                          <p className="mt-1 text-sm text-white/60">
+                            {formatCurrency(quote.subtotal)}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Validade + criação */}
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <p className="text-[11px] font-medium uppercase tracking-wider text-white/35">
+                          Validade
+                        </p>
+
+                        <p className="mt-1 text-sm text-white/60">
+                          {formatDate(quote.validUntil)}
+                        </p>
+                      </div>
+
+                      <div>
+                        <p className="text-[11px] font-medium uppercase tracking-wider text-white/35">
+                          Criação
+                        </p>
+
+                        <p className="mt-1 text-sm text-white/60">
+                          {formatDate(quote.createdAt)}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Itens */}
+                    <div className="border-t border-white/5 pt-3">
+                      <p className="text-[11px] font-medium uppercase tracking-wider text-white/35">
+                        Itens
+                      </p>
+
+                      <p className="mt-1 text-sm text-white/60">
+                        {quote.items.length}{" "}
+                        {quote.items.length === 1 ? "item" : "itens"}
+                      </p>
+                    </div>
+
+                    {/* Ações */}
+                    <div className="flex items-center gap-2 border-t border-white/10 pt-3">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => openEdit(quote)}
+                        className="
+                h-10
+                flex-1
+                rounded-xl
+                border
+                border-white/10
+                bg-transparent
+                text-white/60
+                transition-all
+                duration-200
+                hover:border-[var(--accent)]/40
+                hover:accent-bg
+                hover:accent-text
+              "
+                      >
+                        <Pencil className="mr-2 h-4 w-4" />
+                        Editar
+                      </Button>
+
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleDelete(quote.id)}
+                        className="
+                h-10
+                flex-1
+                rounded-xl
+                border
+                border-white/10
+                bg-transparent
+                text-white/60
+                transition-all
+                duration-200
+                hover:border-red-500/40
+                hover:bg-red-500/10
+                hover:text-red-400
+              "
+                      >
+                        <Trash2 className="mr-2 h-4 w-4" />
+                        Excluir
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+
+              {filtered.length === 0 && (
+                <div className="py-8 text-center text-sm text-white/40">
+                  Nenhum orçamento encontrado
+                </div>
+              )}
+            </div>
           </CardContent>
         </Card>
       </div>
@@ -705,7 +883,7 @@ export default function QuotesPage() {
                     className="
       h-9
       px-6
-      bg-[#fd6401]
+      accent-bg
       hover:bg-[#ff7b24]
       whitespace-nowrap
     "
@@ -821,7 +999,7 @@ export default function QuotesPage() {
             text-white
             ring-1
             ring-white/10
-            hover:ring-[#fd6401]/30
+            hover:ring-[var(--accent)]/30
           "
               >
                 {editingQuote ? "Salvar" : "Criar Orçamento"}
