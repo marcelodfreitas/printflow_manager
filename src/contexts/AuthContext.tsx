@@ -1,32 +1,46 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  type ReactNode,
+} from "react";
 import { createClient } from "@/lib/supabase/client";
 import type { User } from "@supabase/supabase-js";
+import type { Profile } from "@/hooks/useProfile";
 
 interface AuthContextType {
   user: User | null;
   profile: Profile | null;
   isAuthenticated: boolean;
   loading: boolean;
-  login: (email: string, password: string) => Promise<string | null>;
+
+  login: (
+    email: string,
+    password: string
+  ) => Promise<string | null>;
+
   updateProfile: (
-  data: Partial<Profile>
-) => Promise<void>;
+    data: Partial<Profile>
+  ) => Promise<void>;
+
   uploadAvatar: (file: File) => Promise<string | null>;
-  uploadCompanyLogo: (file: File) => Promise<string | null>;
-  register: (name: string, email: string, password: string) => Promise<string | null>;
+
+  uploadCompanyLogo: (
+    file: File
+  ) => Promise<string | null>;
+
+  register: (
+    name: string,
+    email: string,
+    password: string
+  ) => Promise<string | null>;
+
   logout: () => Promise<void>;
 }
 
-interface Profile {
-  id: string;
-  full_name: string | null;
-  company_name: string | null;
-  avatar_url: string | null;
-  company_logo_url: string | null;
-  phone: string | null;
-}
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {

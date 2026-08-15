@@ -43,11 +43,6 @@ export function ClientMobileCard({
             {client.name || "Cliente sem nome"}
           </h3>
 
-          {client.company && (
-            <p className="mt-0.5 truncate text-xs text-white/40">
-              {client.company}
-            </p>
-          )}
         </div>
 
         {/* Menu */}

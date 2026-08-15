@@ -22,6 +22,7 @@ export default function ProfilePage() {
     full_name: profile?.full_name ?? "",
     company_name: profile?.company_name ?? "",
     phone: profile?.phone ?? "",
+    whatsapp:profile?.whatsapp ?? "",
   });
 
   useEffect(() => {
@@ -30,6 +31,7 @@ export default function ProfilePage() {
         full_name: profile.full_name ?? "",
         company_name: profile.company_name ?? "",
         phone: profile.phone ?? "",
+        whatsapp:profile?.whatsapp ?? "",
       });
     }
   }, [profile]);

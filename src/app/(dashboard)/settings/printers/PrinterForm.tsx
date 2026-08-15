@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
-import { Select } from "@/components/common/Select";
+import Select from "@/components/ui/Select";
 
 export interface PrinterFormData {
   name: string;

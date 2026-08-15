@@ -36,21 +36,21 @@ export function ToastProvider({
 
 
 
-  function showToast(
-    message: string,
-    type = "success"
-  ) {
+  type ToastType = "error" | "success" | "warning" | "info";
 
-    setToast({
-      message,
-      type,
-    });
+function showToast(
+  message: string,
+  type: ToastType = "success"
+) {
+  setToast({
+    message,
+    type,
+  });
 
-
-    setTimeout(() => {
-      setToast(null);
-    }, 3000);
-  }
+  setTimeout(() => {
+    setToast(null);
+  }, 3000);
+}
 
 
 

@@ -77,19 +77,27 @@ export default function NotificationsSettingsPage() {
   } = useUserSettings();
 
   async function toggleNotification(
-    key: keyof typeof settings,
-    databaseKey: string
-  ) {
-    if (!settings) return;
+  key:
+    | "notificationsSystem"
+    | "notificationsNewOrder"
+    | "notificationsOrderUpdate"
+    | "notificationsPrinterOffline"
+    | "notificationsPrintFailed"
+    | "notificationsPrintCompleted"
+    | "notificationsLowStock"
+    | "notificationsEmail",
+  databaseKey: string
+) {
+  if (!settings) return;
 
-    const currentValue = settings[key];
+  const currentValue = settings[key];
 
-    if (typeof currentValue !== "boolean") return;
+  if (typeof currentValue !== "boolean") return;
 
-    await updateSettings({
-      [databaseKey]: !currentValue,
-    });
-  }
+  await updateSettings({
+    [databaseKey]: !currentValue,
+  });
+}
 
   if (loading || !settings) {
     return (

@@ -17,7 +17,7 @@ import {
   TableRow,
 } from "@/components/ui/Table";
 import Modal from "@/components/ui/Modal";
-import { Badge as StatusBadge } from "@/components/ui/Badge";
+import { Badge } from "@/components/ui/Badge";
 import type { Quote, QuoteItem } from "@/types";
 import { useQuotes } from "@/hooks/useQuotes";
 import { useClients } from "@/hooks/useClients";
@@ -185,6 +185,42 @@ export default function QuotesPage() {
       remove(id);
     }
   }
+
+  function StatusBadge({ status }: { status: string }) {
+  const config = {
+    pending: {
+      variant: "warning" as const,
+      label: "Pendente",
+    },
+    approved: {
+      variant: "info" as const,
+      label: "Aprovado",
+    },
+    printing: {
+      variant: "info" as const,
+      label: "Imprimindo",
+    },
+    completed: {
+      variant: "success" as const,
+      label: "Concluído",
+    },
+    delivered: {
+      variant: "success" as const,
+      label: "Entregue",
+    },
+    cancelled: {
+      variant: "danger" as const,
+      label: "Cancelado",
+    },
+  };
+
+  const current = config[status as keyof typeof config] ?? {
+    variant: "default" as const,
+    label: status,
+  };
+
+  return <Badge variant={current.variant}>{current.label}</Badge>;
+}
 
   async function generatePDF() {
     const doc = new jsPDF();
@@ -738,7 +774,7 @@ export default function QuotesPage() {
         isOpen={modalOpen}
         onClose={() => setModalOpen(false)}
         title={editingQuote ? "Editar Orçamento" : "Novo Orçamento"}
-        size="2xl"
+        size="xl"
       >
         <form onSubmit={handleSave}>
           <div className="grid gap-8 lg:grid-cols-[1fr_420px]">
