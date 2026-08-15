@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Plus, Search, Trash2, Pencil } from "lucide-react";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
-import { Select } from "@/components/ui/Select";
+import Select from "@/components/ui/Select";
 import { Card, CardContent, CardHeader } from "@/components/common";
 import {
   Table,
