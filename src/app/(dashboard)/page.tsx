@@ -196,6 +196,7 @@ export default function DashboardPage() {
           accent-bg
           ring-1 ring-white/20
           backdrop-blur-sm
+          
         "
       >
         <DollarSign className="h-5 w-5 text-white" />
