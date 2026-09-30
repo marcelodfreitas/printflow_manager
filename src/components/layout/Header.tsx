@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import {
   Bell,
   CheckCheck,
@@ -47,6 +48,9 @@ export function Header({ title, className }: HeaderProps) {
   const { toggle } = useMobileNav();
   const { notifications, unreadCount, refresh, markAllRead } = useNotifications();
   const [notificationsOpen, setNotificationsOpen] = useState(false);
+
+  const companyName = (user?.user_metadata?.company as string) || (user?.user_metadata?.name as string) || "Perfil";
+  const companyAvatarUrl = user?.user_metadata?.avatar_url as string | undefined;
 
   return (
     <header className={cn("sticky top-0 z-30 flex min-h-[56px] items-center gap-3 px-4 sm:px-6", className)}>
@@ -146,15 +150,27 @@ export function Header({ title, className }: HeaderProps) {
         )}
       </div>
 
-      <div className="flex min-w-0 items-center gap-3 border-l border-white/10 pl-3 sm:pl-4">
-        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-[#0d1a35] to-[#071124] text-sm font-medium text-[#fd6401] ring-1 ring-white/10">
-          {user?.email?.charAt(0).toUpperCase()}
-        </div>
+      <Link
+        href="/perfil"
+        className="flex min-w-0 items-center gap-3 border-l border-white/10 pl-3 transition-colors hover:bg-white/5 sm:pl-4"
+      >
+        {companyAvatarUrl ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={companyAvatarUrl}
+            alt={companyName}
+            className="h-8 w-8 shrink-0 rounded-full object-cover ring-1 ring-white/10"
+          />
+        ) : (
+          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-[#0d1a35] to-[#071124] text-sm font-medium text-[#fd6401] ring-1 ring-white/10">
+            {companyName?.charAt(0).toUpperCase()}
+          </div>
+        )}
         <div className="hidden min-w-0 text-sm sm:block">
-          <p className="truncate font-medium text-white/90">{user?.user_metadata?.name as string}</p>
+          <p className="truncate font-medium text-white/90">{companyName}</p>
           <p className="max-w-[180px] truncate text-xs text-white/40">{user?.email}</p>
         </div>
-      </div>
+      </Link>
     </header>
   );
 }

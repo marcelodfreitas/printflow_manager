@@ -96,15 +96,20 @@ export type QuoteStatus = "draft" | "sent" | "approved" | "rejected" | "converte
 export interface Quote {
   id: string;
   quoteNumber?: number;
-  productId?: string;
+
+  productId?: string | null;
   productName?: string;
-  clientId: string;
+
+  clientId?: string | null;
   clientName: string;
+
   status: QuoteStatus;
   items: QuoteItem[];
+
   subtotal: number;
   tax: number;
   total: number;
+
   notes?: string;
   validUntil: string;
   createdAt: string;
@@ -114,8 +119,26 @@ export interface QuoteItem {
   id: string;
   description: string;
   quantity: number;
+
+  // Preço de venda por unidade
   unitPrice: number;
   total: number;
+
+  // Dados de produção
+  material?: string | null;
+  weightGrams: number;
+  printTimeHours: number;
+
+  // Custos por unidade
+  filamentCost: number;
+  energyCost: number;
+  printerCost: number;
+  laborCost: number;
+  otherCost: number;
+
+  // Formação do preço
+  productionCost: number;
+  marginPercent: number;
 }
 
 export interface DashboardStats {

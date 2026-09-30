@@ -10,6 +10,7 @@ interface AuthContextType {
   loading: boolean;
   login: (email: string, password: string) => Promise<string | null>;
   register: (name: string, email: string, password: string) => Promise<string | null>;
+  updateProfile: (data: Record<string, unknown>) => Promise<string | null>;
   logout: () => Promise<void>;
 }
 
@@ -38,12 +39,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [supabase.auth]);
 
   async function login(email: string, password: string): Promise<string | null> {
+    console.log(document.cookie.length);
+console.log(document.cookie);
     const res = await fetch("/api/auth/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, password }),
     });
-    const data = await res.json().catch(() => ({}));
+    // const data = await res.json().catch(() => ({}));
+    if (!res.ok) {
+  console.log(await res.text());
+  return "Erro";
+}
 
     if (data?.error) return data.error;
 
@@ -60,7 +67,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ name, email, password }),
     });
-    const data = await res.json().catch(() => ({}));
+    // const data = await res.json().catch(() => ({}));
+    if (!res.ok) {
+  console.log(await res.text());
+  return "Erro";
+}
 
     if (data?.error) return data.error;
 
@@ -71,13 +82,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return null;
   }
 
+  async function updateProfile(data: Record<string, unknown>): Promise<string | null> {
+    const currentMetadata = user?.user_metadata ?? {};
+    const { error } = await supabase.auth.updateUser({
+      data: { ...currentMetadata, ...data },
+    });
+
+    if (error) return error.message;
+
+    const {
+      data: { user: updatedUser },
+    } = await supabase.auth.getUser();
+    if (updatedUser) setUser(updatedUser);
+    return null;
+  }
+
   async function logout() {
     await supabase.auth.signOut();
   }
 
   return (
     <AuthContext.Provider
-      value={{ user, isAuthenticated: !!user, loading, login, register, logout }}
+      value={{ user, isAuthenticated: !!user, loading, login, register, updateProfile, logout }}
     >
       {children}
     </AuthContext.Provider>
