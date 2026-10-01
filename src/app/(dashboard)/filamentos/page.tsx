@@ -2,12 +2,14 @@
 
 import { useState } from "react";
 import { Plus, Search, Circle, Trash2, Pencil } from "lucide-react";
-import { Header } from "@/components/layout/Header";
-import { Button } from "@/components/ui/Button";
-import { Input } from "@/components/ui/Input";
-import { Select } from "@/components/ui/Select";
-import { Card, CardContent, CardHeader } from "@/components/ui/Card";
+import Button from "@/components/ui/Button";
+import Input from "@/components/ui/Input";
+import Select from "@/components/ui/Select";
 import {
+  Card,
+  CardContent,
+  CardHeader,
+} from "@/components/common";import {
   Table,
   TableBody,
   TableCell,
@@ -15,7 +17,7 @@ import {
   TableHeadCell,
   TableRow,
 } from "@/components/ui/Table";
-import { Modal } from "@/components/ui/Modal";
+import Modal from "@/components/ui/Modal";
 import type { Filament } from "@/types";
 import { useFilaments } from "@/hooks/useFilaments";
 import { formatCurrency } from "@/lib/utils";
@@ -143,10 +145,7 @@ export default function FilamentsPage() {
     <div className="relative min-h-screen bg-[#050914]">
       <div className="pointer-events-none fixed -bottom-40 -right-40 h-[500px] w-[500px] rounded-full bg-[#071124]/60 blur-[120px]" />
       <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(255,255,255,0.06)_1px,transparent_0)] bg-[size:32px_32px]" />
-      <Header
-        title="Filamentos"
-        className="border-b border-white/10 bg-white/[0.02] backdrop-blur-xl text-white"
-      />
+      
 
       {loading && (
         <div className="flex items-center justify-center py-12">
@@ -157,46 +156,46 @@ export default function FilamentsPage() {
       {!loading && (
         <div className="space-y-5 px-4 py-5 sm:p-6 sm:space-y-6">
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <Card className="border border-white/10 bg-white/[0.03] backdrop-blur-2xl shadow-2xl shadow-black/40">
-              <CardContent>
-                <p className="text-sm text-white/50">Total de Filamentos</p>
-                <p className="text-2xl font-bold text-white">
-                  {filaments.length}
-                </p>
-              </CardContent>
-            </Card>
-            <Card className="border border-white/10 bg-white/[0.03] backdrop-blur-2xl shadow-2xl shadow-black/40">
-              <CardContent>
-                <p className="text-sm text-white/50">Estoque Disponível</p>
-                <p className="text-2xl font-bold text-white">
-                  {filaments
-                    .reduce(
-                      (acc, f) =>
-                        acc + (f.remainingWeight ?? f.weight * f.quantity),
-                      0,
-                    )
-                    .toFixed(0)}
-                  g
-                </p>
-              </CardContent>
-            </Card>
-            <Card className="border border-white/10 bg-white/[0.03] backdrop-blur-2xl shadow-2xl shadow-black/40">
-              <CardContent>
-                <p className="text-sm text-white/50">Unidades em Estoque</p>
-                <p className="text-2xl font-bold text-white">
-                  {filaments.reduce((acc, f) => acc + f.quantity, 0)}
-                </p>
-              </CardContent>
-            </Card>
-            <Card className="border border-white/10 bg-white/[0.03] backdrop-blur-2xl shadow-2xl shadow-black/40">
-              <CardContent>
-                <p className="text-sm  text-white/50">Valor Total em Estoque</p>
-                <p className="text-2xl font-bold text-white">
-                  {formatCurrency(totalValue)}
-                </p>
-              </CardContent>
-            </Card>
-          </div>
+  <Card className="border border-white/10 bg-white/[0.03] backdrop-blur-2xl shadow-2xl shadow-black/40">
+    <CardContent className="p-6">
+      <p className="text-sm text-white/50">Total de Filamentos</p>
+      <p className="text-2xl font-bold text-white">
+        {filaments.length}
+      </p>
+    </CardContent>
+  </Card>
+  <Card className="border border-white/10 bg-white/[0.03] backdrop-blur-2xl shadow-2xl shadow-black/40">
+    <CardContent className="p-6">
+      <p className="text-sm text-white/50">Estoque Disponível</p>
+      <p className="text-2xl font-bold text-white">
+        {filaments
+          .reduce(
+            (acc, f) =>
+              acc + (f.remainingWeight ?? f.weight * f.quantity),
+            0,
+          )
+          .toFixed(0)}
+        g
+      </p>
+    </CardContent>
+  </Card>
+  <Card className="border border-white/10 bg-white/[0.03] backdrop-blur-2xl shadow-2xl shadow-black/40">
+    <CardContent className="p-6">
+      <p className="text-sm text-white/50">Unidades em Estoque</p>
+      <p className="text-2xl font-bold text-white">
+        {filaments.reduce((acc, f) => acc + f.quantity, 0)}
+      </p>
+    </CardContent>
+  </Card>
+  <Card className="border border-white/10 bg-white/[0.03] backdrop-blur-2xl shadow-2xl shadow-black/40">
+    <CardContent className="p-6">
+      <p className="text-sm text-white/50">Valor Total em Estoque</p>
+      <p className="text-2xl font-bold text-white">
+        {formatCurrency(totalValue)}
+      </p>
+    </CardContent>
+  </Card>
+</div>
 
           <Card className="border border-white/10 bg-white/[0.03] backdrop-blur-2xl shadow-2xl shadow-black/40">
             <CardHeader className="border-b border-white/5">
@@ -218,10 +217,10 @@ export default function FilamentsPage() {
                             text-sm
                             text-white
                             placeholder:text-white/30
-                            focus:border-[#fd6401]/50
+                            focus:border-[var(--accent)]/50
                             focus:outline-none
                             focus:ring-1
-                            focus:ring-[#fd6401]/30
+                            focus:ring-[var(--accent)]/30
                             "
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
@@ -229,188 +228,374 @@ export default function FilamentsPage() {
                 </div>
                 <Button
                   onClick={openCreate}
-                  className="
-                    bg-gradient-to-r
-                    from-[#071124]
-                    to-[#0d1a35]
-                    text-white
-                    shadow-lg
-                    shadow-black/30
-                    ring-1
-                    ring-white/10
-                    transition-all
-                    duration-300
-                    hover:ring-[#fd6401]/30
-                    hover:shadow-[#fd6401]/20
-                "
+                  className="bg-gradient-to-r from-[#071124] to-[#0d1a35] text-white shadow-lg shadow-black/30 ring-1 ring-white/10 transition-all duration-300 hover:shadow-[0_8px_30px_rgba(var(--accent-rgb),0.20)] hover:ring-[rgba(var(--accent-rgb),0.30)]"
+
                 >
                   <Plus className="h-4 w-4" />
                   Novo Filamento
                 </Button>
               </div>
             </CardHeader>
-            <CardContent className="p-0 bg-[#0a1120] rounded-xl ">
-              <Table>
-                <TableHead className="border-b border-white/10">
-                  <TableRow
-                    className="
-                      border-b
-                      border-white/5
-                      hover:bg-white/[0.02]
-                      transition-colors
-                      last:border-0
-                  "
-                  >
-                    <TableHeadCell className="text-center text-white/50">
-                      Nome
-                    </TableHeadCell>
-                    <TableHeadCell className="text-center text-white/50">
-                      Cor
-                    </TableHeadCell>
-                    <TableHeadCell className="text-center text-white/50">
-                      Tipo
-                    </TableHeadCell>
-                    <TableHeadCell className="text-center text-white/50">
-                      Fabricante
-                    </TableHeadCell>
-                    <TableHeadCell className="text-center text-white/50">
-                      Diâmetro
-                    </TableHeadCell>
-                    <TableHeadCell className="text-center text-white/50">
-                      Peso
-                    </TableHeadCell>
-                    <TableHeadCell className="text-center text-white/50">
-                      Estoque (g)
-                    </TableHeadCell>
-                    <TableHeadCell className="text-center text-white/50">
-                      Qtd
-                    </TableHeadCell>
-                    <TableHeadCell className="text-center text-white/50">
-                      Custo/Kg
-                    </TableHeadCell>
-                    <TableHeadCell className="text-center text-white/50">
-                      Ações
-                    </TableHeadCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {filtered.map((filament) => (
-                    <TableRow key={filament.id}>
-                      <TableCell className="text-center">
-                        <p className="font-medium text-white">
-                          {filament.name}
-                        </p>
-                      </TableCell>
-                      <TableCell className="text-center">
-                        <div className="mx-auto flex w-fit items-center gap-2">
-                          <Circle
-                            className="h-4 w-4"
-                            fill={filament.colorHex}
-                            stroke={filament.colorHex}
-                          />
-                          <span className="text-sm">{filament.color}</span>
-                        </div>
-                      </TableCell>
-                      <TableCell className="text-center">
-                        {filament.type}
-                      </TableCell>
-                      <TableCell className="text-center">
-                        {filament.manufacturer}
-                      </TableCell>
-                      <TableCell className="text-center">
-                        {filament.diameter}mm
-                      </TableCell>
-                      <TableCell className="text-center">
-                        {filament.weight}g
-                      </TableCell>
-                      <TableCell className="text-center">
-                        <span
-                          className={
-                            stockOf(filament) <= filament.weight * 0.2
-                              ? "font-medium text-red-600"
-                              : stockOf(filament) <= filament.weight * 0.5
-                                ? "font-medium text-amber-500"
-                                : "font-medium text-white"
-                          }
-                        >
-                          {stockOf(filament)}g
-                        </span>
-                      </TableCell>
-                      <TableCell className="text-center">
-                        <span
-                          className={
-                            filament.quantity <= 2
-                              ? "font-medium text-red-600"
-                              : ""
-                          }
-                        >
-                          {filament.quantity}
-                        </span>
-                      </TableCell>
-                      <TableCell className="text-center">
-                        {formatCurrency(filament.costPerKg)}
-                      </TableCell>
-                      <TableCell className="text-center">
-                        <div className="flex items-center justify-center gap-1.5">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => openEdit(filament)}
-                            className="
-      h-10
-      w-10
-      rounded-lg
-      border
-      border-white/10
-      bg-white/[0.03]
-      text-white/60
-      transition-all
-      duration-200
-      hover:border-[#fd6401]/40
-      hover:bg-[#fd6401]/10
-      hover:text-[#fd6401]
-    "
-                          >
-                            <Pencil className="h-4 w-4" />
-                          </Button>
+            <CardContent className="p-0">
+  {/* =========================
+      MOBILE — CARDS
+  ========================== */}
+  <div className="space-y-3 p-4 md:hidden">
+    {filtered.map((filament) => (
+      <div
+        key={filament.id}
+        className="
+          rounded-2xl
+          border
+          border-white/10
+          bg-white/[0.03]
+          p-4
+          shadow-lg
+          shadow-black/20
+          backdrop-blur-xl
+          transition-all
+          duration-300
+          hover:border-white/15
+          hover:bg-white/[0.045]
+        "
+      >
+        {/* Cabeçalho */}
+        <div className="flex items-start justify-between gap-3">
+          <div className="min-w-0">
+            <p className="truncate text-base font-semibold text-white">
+              {filament.name}
+            </p>
 
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleDelete(filament.id)}
-                            className="
-      h-10
-      w-10
-      rounded-lg
-      border
-      border-white/10
-      bg-white/[0.03]
-      text-white/60
-      transition-all
-      duration-200
-      hover:border-red-500/40
-      hover:bg-red-500/10
-      hover:text-red-400
-    "
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                  {filtered.length === 0 && (
-                    <TableRow>
-                      <TableCell colSpan={10}>
-                        <div className="py-8 text-center text-sm text-gray-500">
-                          Nenhum filamento encontrado
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  )}
-                </TableBody>
-              </Table>
-            </CardContent>
+            <p className="mt-0.5 text-xs text-white/40">
+              {filament.manufacturer}
+            </p>
+          </div>
+
+          <div className="flex shrink-0 items-center gap-1.5">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => openEdit(filament)}
+              className="
+                h-9
+                w-9
+                rounded-lg
+                border
+                border-white/10
+                bg-white/[0.03]
+                text-white/60
+                transition-all
+                duration-200
+                hover:border-[var(--accent)]/40
+                hover:accent-bg
+                hover:taccent-text
+              "
+            >
+              <Pencil className="h-4 w-4" />
+            </Button>
+
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => handleDelete(filament.id)}
+              className="
+                h-9
+                w-9
+                rounded-lg
+                border
+                border-white/10
+                bg-white/[0.03]
+                text-white/60
+                transition-all
+                duration-200
+                hover:border-red-500/40
+                hover:bg-red-500/10
+                hover:text-red-400
+              "
+            >
+              <Trash2 className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+
+        {/* Cor + Tipo */}
+        <div className="mt-4 flex items-center gap-3">
+          <div
+            className="h-9 w-9 shrink-0 rounded-full border border-white/10 shadow-inner"
+            style={{ backgroundColor: filament.colorHex }}
+          />
+
+          <div className="min-w-0">
+            <p className="text-sm font-medium text-white">
+              {filament.color}
+            </p>
+
+            <p className="text-xs text-white/40">
+              {filament.type}
+            </p>
+          </div>
+        </div>
+
+        {/* Informações */}
+        <div className="mt-4 grid grid-cols-2 gap-2">
+          <div className="rounded-xl border border-white/5 bg-white/[0.02] p-3">
+            <p className="text-[11px] text-white/35">
+              Diâmetro
+            </p>
+            <p className="mt-1 text-sm font-medium text-white">
+              {filament.diameter}mm
+            </p>
+          </div>
+
+          <div className="rounded-xl border border-white/5 bg-white/[0.02] p-3">
+            <p className="text-[11px] text-white/35">
+              Peso
+            </p>
+            <p className="mt-1 text-sm font-medium text-white">
+              {filament.weight}g
+            </p>
+          </div>
+
+          <div className="rounded-xl border border-white/5 bg-white/[0.02] p-3">
+            <p className="text-[11px] text-white/35">
+              Estoque
+            </p>
+            <p
+              className={`mt-1 text-sm font-medium ${
+                stockOf(filament) <= filament.weight * 0.2
+                  ? "text-red-400"
+                  : stockOf(filament) <= filament.weight * 0.5
+                    ? "text-amber-400"
+                    : "text-white"
+              }`}
+            >
+              {stockOf(filament)}g
+            </p>
+          </div>
+
+          <div className="rounded-xl border border-white/5 bg-white/[0.02] p-3">
+            <p className="text-[11px] text-white/35">
+              Quantidade
+            </p>
+            <p
+              className={`mt-1 text-sm font-medium ${
+                filament.quantity <= 2
+                  ? "text-red-400"
+                  : "text-white"
+              }`}
+            >
+              {filament.quantity}
+            </p>
+          </div>
+
+          <div className="col-span-2 rounded-xl border border-white/5 bg-white/[0.02] p-3">
+            <p className="text-[11px] text-white/35">
+              Custo por Kg
+            </p>
+            <p className="mt-1 text-sm font-semibold text-white">
+              {formatCurrency(filament.costPerKg)}
+            </p>
+          </div>
+        </div>
+      </div>
+    ))}
+
+    {filtered.length === 0 && (
+      <div className="py-8 text-center text-sm text-white/40">
+        Nenhum filamento encontrado
+      </div>
+    )}
+  </div>
+
+  {/* =========================
+      DESKTOP — TABELA
+  ========================== */}
+  <div className="hidden md:block">
+    <Table>
+      <TableHead className="border-b border-white/10">
+        <TableRow
+          className="
+            border-b
+            border-white/5
+            transition-colors
+            hover:bg-white/[0.02]
+            last:border-0
+          "
+        >
+          <TableHeadCell className="text-center text-white/50">
+            Nome
+          </TableHeadCell>
+
+          <TableHeadCell className="text-center text-white/50">
+            Cor
+          </TableHeadCell>
+
+          <TableHeadCell className="text-center text-white/50">
+            Tipo
+          </TableHeadCell>
+
+          <TableHeadCell className="text-center text-white/50">
+            Fabricante
+          </TableHeadCell>
+
+          <TableHeadCell className="text-center text-white/50">
+            Diâmetro
+          </TableHeadCell>
+
+          <TableHeadCell className="text-center text-white/50">
+            Peso
+          </TableHeadCell>
+
+          <TableHeadCell className="text-center text-white/50">
+            Estoque (g)
+          </TableHeadCell>
+
+          <TableHeadCell className="text-center text-white/50">
+            Qtd
+          </TableHeadCell>
+
+          <TableHeadCell className="text-center text-white/50">
+            Custo/Kg
+          </TableHeadCell>
+
+          <TableHeadCell className="text-center text-white/50">
+            Ações
+          </TableHeadCell>
+        </TableRow>
+      </TableHead>
+
+      <TableBody>
+        {filtered.map((filament) => (
+          <TableRow key={filament.id}>
+            <TableCell className="text-center">
+              <p className="font-medium text-white">
+                {filament.name}
+              </p>
+            </TableCell>
+
+            <TableCell className="text-center">
+              <div className="mx-auto flex w-fit items-center gap-2">
+                <Circle
+                  className="h-4 w-4"
+                  fill={filament.colorHex}
+                  stroke={filament.colorHex}
+                />
+
+                <span className="text-sm text-white/70">
+                  {filament.color}
+                </span>
+              </div>
+            </TableCell>
+
+            <TableCell className="text-center text-white/70">
+              {filament.type}
+            </TableCell>
+
+            <TableCell className="text-center text-white/70">
+              {filament.manufacturer}
+            </TableCell>
+
+            <TableCell className="text-center text-white/70">
+              {filament.diameter}mm
+            </TableCell>
+
+            <TableCell className="text-center text-white/70">
+              {filament.weight}g
+            </TableCell>
+
+            <TableCell className="text-center">
+              <span
+                className={
+                  stockOf(filament) <= filament.weight * 0.2
+                    ? "font-medium text-red-400"
+                    : stockOf(filament) <= filament.weight * 0.5
+                      ? "font-medium text-amber-400"
+                      : "font-medium text-white"
+                }
+              >
+                {stockOf(filament)}g
+              </span>
+            </TableCell>
+
+            <TableCell className="text-center">
+              <span
+                className={
+                  filament.quantity <= 2
+                    ? "font-medium text-red-400"
+                    : "text-white/70"
+                }
+              >
+                {filament.quantity}
+              </span>
+            </TableCell>
+
+            <TableCell className="text-center text-white/70">
+              {formatCurrency(filament.costPerKg)}
+            </TableCell>
+
+            <TableCell className="text-center">
+              <div className="flex items-center justify-center gap-1.5">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => openEdit(filament)}
+                  className="
+                    h-10
+                    w-10
+                    rounded-lg
+                    border
+                    border-white/10
+                    bg-white/[0.03]
+                    text-white/60
+                    transition-all
+                    duration-200
+                    hover:border-[var(--accent)]/40
+                    hover:accent-bg
+                    hover:taccent-text
+                  "
+                >
+                  <Pencil className="h-4 w-4" />
+                </Button>
+
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => handleDelete(filament.id)}
+                  className="
+                    h-10
+                    w-10
+                    rounded-lg
+                    border
+                    border-white/10
+                    bg-white/[0.03]
+                    text-white/60
+                    transition-all
+                    duration-200
+                    hover:border-red-500/40
+                    hover:bg-red-500/10
+                    hover:text-red-400
+                  "
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </div>
+            </TableCell>
+          </TableRow>
+        ))}
+
+        {filtered.length === 0 && (
+          <TableRow>
+            <TableCell colSpan={10}>
+              <div className="py-8 text-center text-sm text-white/40">
+                Nenhum filamento encontrado
+              </div>
+            </TableCell>
+          </TableRow>
+        )}
+      </TableBody>
+    </Table>
+  </div>
+</CardContent>
           </Card>
 
           <Modal
@@ -430,8 +615,8 @@ export default function FilamentsPage() {
                         border-white/10
                         text-white
                         placeholder:text-white/30
-                        focus:border-[#fd6401]/50
-                        focus:ring-[#fd6401]/20
+                        focus:border-[var(--accent)]/50
+                        focus:ring-[var(--accent)]/20
                         "
                   onChange={(e) => setForm({ ...form, name: e.target.value })}
                   required
@@ -446,8 +631,8 @@ export default function FilamentsPage() {
                         border-white/10
                         text-white
                         placeholder:text-white/30
-                        focus:border-[#fd6401]/50
-                        focus:ring-[#fd6401]/20
+                        focus:border-[var(--accent)]/50
+                        focus:ring-[var(--accent)]/20
                         "
                   onChange={(e) =>
                     setForm({
@@ -467,8 +652,8 @@ export default function FilamentsPage() {
                         border-white/10
                         text-white
                         placeholder:text-white/30
-                        focus:border-[#fd6401]/50
-                        focus:ring-[#fd6401]/20
+                        focus:border-[var(--accent)]/50
+                        focus:ring-[var(--accent)]/20
                         "
                   onChange={(e) => setForm({ ...form, color: e.target.value })}
                   required
@@ -495,8 +680,8 @@ export default function FilamentsPage() {
                         border-white/10
                         text-white
                         placeholder:text-white/30
-                        focus:border-[#fd6401]/50
-                        focus:ring-[#fd6401]/20
+                        focus:border-[var(--accent)]/50
+                        focus:ring-[var(--accent)]/20
                         "
                   onChange={(e) =>
                     setForm({ ...form, manufacturer: e.target.value })
@@ -516,8 +701,8 @@ export default function FilamentsPage() {
                         border-white/10
                         text-white
                         placeholder:text-white/30
-                        focus:border-[#fd6401]/50
-                        focus:ring-[#fd6401]/20
+                        focus:border-[var(--accent)]/50
+                        focus:ring-[var(--accent)]/20
                         "
                   onChange={(e) =>
                     setForm({ ...form, diameter: e.target.value })
@@ -534,8 +719,8 @@ export default function FilamentsPage() {
                         border-white/10
                         text-white
                         placeholder:text-white/30
-                        focus:border-[#fd6401]/50
-                        focus:ring-[#fd6401]/20
+                        focus:border-[var(--accent)]/50
+                        focus:ring-[var(--accent)]/20
                         "
                   onChange={(e) => setForm({ ...form, weight: e.target.value })}
                   required
@@ -550,8 +735,8 @@ export default function FilamentsPage() {
                         border-white/10
                         text-white
                         placeholder:text-white/30
-                        focus:border-[#fd6401]/50
-                        focus:ring-[#fd6401]/20
+                        focus:border-[var(--accent)]/50
+                        focus:ring-[var(--accent)]/20
                         "
                   onChange={(e) =>
                     setForm({ ...form, quantity: e.target.value })
@@ -570,8 +755,8 @@ export default function FilamentsPage() {
                       border-white/10
                       text-white
                       placeholder:text-white/30
-                      focus:border-[#fd6401]/50
-                      focus:ring-[#fd6401]/20
+                      focus:border-[var(--accent)]/50
+                      focus:ring-[var(--accent)]/20
                       "
                 onChange={(e) =>
                   setForm({ ...form, costPerKg: e.target.value })
@@ -603,7 +788,7 @@ export default function FilamentsPage() {
                                             text-white
                                             ring-1
                                             ring-white/10
-                                            hover:ring-[#fd6401]/30
+                                            hover:ring-[var(--accent)]/30
                                             "
                 >
                   {editingFilament ? "Salvar" : "Criar"}

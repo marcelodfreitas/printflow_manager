@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Ubuntu } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { ThemeProvider } from "@/contexts/ThemeContext";
 
 const ubuntu = Ubuntu({
   subsets: ["latin"],
@@ -25,8 +26,12 @@ export default function RootLayout({
   return (
     <html lang="pt-BR">
       <body className={ubuntu.className}>
-        <AuthProvider>{children}</AuthProvider>
-      </body>
+  <AuthProvider>
+    <ThemeProvider>
+      {children}
+    </ThemeProvider>
+  </AuthProvider>
+</body>
     </html>
   );
 }

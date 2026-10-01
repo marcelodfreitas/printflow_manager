@@ -66,18 +66,18 @@ function LogoBlock({
     <div className="border-b border-white/10 px-4 py-3">
       <div className="flex items-center">
         <div className="flex h-12 w-12 items-center justify-center">
-  <Image
-    src={logo}
-    alt="PrintFlow"
-    width={44}
-    height={44}
-    className="object-contain"
-  />
-</div>
+          <Image
+            src={logo}
+            alt="PrintFlow"
+            width={40}
+            height={40}
+            className="object-contain"
+          />
+        </div>
 
         <div
           className={cn(
-            "overflow-hidden transition-all duration-300",
+            "overflow-hidden transition-all duration-500",
             mobile
               ? "ml-3 flex-1 opacity-100"
               : "ml-0 w-0 opacity-0 group-hover:ml-3 group-hover:w-36 group-hover:opacity-100",
@@ -127,7 +127,7 @@ function NavSections({
   return (
     <nav className="flex-1 overflow-y-auto py-3">
       {sections.map((section) => (
-        <div key={section.title} className="mb-4 px-2">
+        <div key={section.title} className="mb-4 px-1">
           <p
             className={cn(
               "mb-2 overflow-hidden whitespace-nowrap px-2 text-[10px] font-semibold uppercase tracking-[0.3em] text-white/25",
@@ -143,40 +143,39 @@ function NavSections({
 
               return (
                 <Link
-                  key={item.href}
-                  href={item.href}
-                  onClick={onNavigate}
-                  className={cn(
-                    "relative flex items-center rounded-xl transition-all duration-300",
-                    mobile ? "h-11 gap-3 px-3 text-sm font-medium" : "h-12",
-                    active
-                      ? "bg-white/5 text-white"
-                      : "text-white/60 hover:bg-white/5 hover:text-white",
-                    mobile &&
-                      active &&
-                      "bg-[#fd6401] text-white shadow-lg shadow-[#fd6401]/20",
-                  )}
-                >
-                  <div
-                    className={cn(
-                      "flex h-10 w-10 shrink-0 items-center justify-center rounded-xl transition-all duration-300",
-                      active
-                        ? "bg-[#fd6401] text-white"
-                        : "bg-white/5 text-white/70 group-hover:bg-white/10 group-hover:text-white",
-                    )}
-                  >
-                    <item.icon className="h-5 w-5" />
-                  </div>
+  key={item.href}
+  href={item.href}
+  onClick={onNavigate}
+  className={cn(
+    "group/item relative flex h-10 items-center rounded-xl transition-all duration-300",
+    mobile ? "h-11 gap-3 px-3 text-sm font-medium" : "px-1",
+    mobile && active && "bg-[var(--accent)] text-white accent-shadow",
+  )}
+>
+  {/* ÍCONE */}
+  <div
+    className={cn(
+      "flex h-9 w-9 shrink-0 items-center justify-center rounded-xl transition-all duration-200",
+      active
+  ? "bg-[var(--accent)] text-white"
+        : "bg-white/5 text-white/70 group-hover/item:bg-white/10 group-hover/item:text-white",
+    )}
+  >
+    <item.icon className="h-5 w-5" />
+  </div>
 
-                  <span
-                    className={cn(
-                      "whitespace-nowrap ml-2 transition-all duration-200",
-                      !mobile && "opacity-0 group-hover:opacity-100",
-                    )}
-                  >
-                    {item.label}
-                  </span>
-                </Link>
+  {/* NOME */}
+  <span
+    className={cn(
+      "ml-2 whitespace-nowrap text-sm font-medium transition-all duration-300",
+      !mobile &&
+        "w-0 overflow-hidden opacity-0 group-hover:w-auto group-hover:opacity-100",
+      active && "text-white",
+    )}
+  >
+    {item.label}
+  </span>
+</Link>
               );
             })}
           </div>
@@ -191,7 +190,7 @@ function LogoutButton({ mobile = false }: { mobile?: boolean }) {
 
   return (
     <div className="border-t border-white/10 p-3">
-      <button
+      {/* <button
         onClick={logout}
         className={cn(
           "flex w-full items-center rounded-xl text-white/60 transition-all hover:bg-red-500/10 hover:text-red-400",
@@ -210,7 +209,7 @@ function LogoutButton({ mobile = false }: { mobile?: boolean }) {
         >
           Sair
         </span>
-      </button>
+      </button> */}
     </div>
   );
 }
@@ -224,8 +223,6 @@ export function Sidebar() {
         <LogoBlock mobile={false} />
 
         <NavSections />
-
-        <LogoutButton />
       </aside>
 
       {open && (

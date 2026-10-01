@@ -2,9 +2,11 @@
 
 import { useState } from "react";
 import { Search, ShieldAlert, Users } from "lucide-react";
-import { Header } from "@/components/layout/Header";
-import { Card, CardContent, CardHeader } from "@/components/ui/Card";
-import { StatsCard } from "@/components/ui/StatsCard";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+} from "@/components/common";import { StatsCard } from "@/components/ui/StatsCard";
 import {
   Table,
   TableBody,
@@ -54,17 +56,14 @@ export default function AdminPage() {
     <div className="relative min-h-screen bg-[#050914]">
       <div className="pointer-events-none fixed -bottom-40 -right-40 h-[500px] w-[500px] rounded-full bg-[#071124]/60 blur-[120px]" />
       <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(255,255,255,0.06)_1px,transparent_0)] bg-[size:32px_32px]" />
-      <Header
-        title="Administração"
-        className="border-b border-white/10 bg-white/[0.02] backdrop-blur-xl text-white"
-      />
+      
 
       <div className="space-y-5 px-4 py-5 sm:p-6 sm:space-y-6">
         <StatsCard
           title="Usuários cadastrados"
           value={users.length}
           icon={<Users className="h-6 w-6" />}
-          className="group relative overflow-hidden rounded-3xl border border-white/10 bg-white/[0.03] backdrop-blur-xl transition hover:-translate-y-1 hover:border-[#fd6401]/30 hover:shadow-[0_20px_60px_rgba(253,100,1,.15)] text-white [&_svg]:text-[#fd6401]"
+          className="group relative overflow-hidden rounded-3xl border border-white/10 bg-white/[0.03] backdrop-blur-xl transition hover:-translate-y-1 hover:border-[var(--accent)] hover:shadow-[var(--accent)] text-white [&_svg]:accent-text"
         />
 
         <Card className="border border-white/10 bg-white/[0.03] backdrop-blur-2xl shadow-2xl shadow-black/40">
@@ -74,7 +73,7 @@ export default function AdminPage() {
               <input
                 type="text"
                 placeholder="Buscar usuários..."
-                className="w-full rounded-lg border border-white/10 bg-white/5 py-2 pl-10 pr-4 text-sm text-white placeholder:text-white/30 focus:border-[#fd6401]/50 focus:outline-none focus:ring-1 focus:ring-[#fd6401]/30"
+                className="w-full rounded-lg border border-white/10 bg-white/5 py-2 pl-10 pr-4 text-sm text-white placeholder:text-white/30 focus:border-[var(--accent)] focus:outline-none focus:ring-1 focus:ring-[var(--accent)]"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
               />

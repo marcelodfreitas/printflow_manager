@@ -5,16 +5,52 @@
 @layer base {
   html {
     scroll-behavior: smooth;
+    background-color: #050914;
+    color: #ffffff;
+  }
+
+  :root {
+    --background: #050914;
+    --foreground: #ffffff;
+
+    --surface: #08111f;
+    --surface-light: #111827;
+
+    --border: #1e293b;
+
+    --muted: #94a3b8;
+
+    --accent: #fd6401;
+    --accent-rgb: 253, 100, 1;
+
+    --success: #10b981;
+    --warning: #f59e0b;
+    --danger: #ef4444;
+    --info: #3b82f6;
+
+    --app-background: #050914;
+    --app-foreground: #ffffff;
+    --app-surface: rgba(255, 255, 255, 0.03);
+    --app-border: rgba(255, 255, 255, 0.10);
   }
 
   body {
-    @apply bg-gray-50 text-gray-900 antialiased;
+    min-height: 100vh;
+    background-color: #050914;
+    color: #ffffff;
+
+    @apply antialiased;
+
     font-feature-settings: "rlig" 1, "calt" 1;
+
+    transition:
+      background-color 0.25s ease,
+      color 0.25s ease;
   }
 
   ::selection {
-    background: rgba(253, 100, 1, .25);
-    color: white;
+    background: rgba(var(--accent-rgb), 0.25);
+    color: #ffffff;
   }
 
   ::-webkit-scrollbar {
@@ -27,13 +63,91 @@
   }
 
   ::-webkit-scrollbar-thumb {
-    background: rgba(0,0,0,.15);
+    background: rgba(148, 163, 184, 0.25);
     border-radius: 999px;
   }
 
   ::-webkit-scrollbar-thumb:hover {
-    background: rgba(253,100,1,.45);
+    background: rgba(var(--accent-rgb), 0.45);
   }
+
+  html.no-animations *,
+  html.no-animations *::before,
+  html.no-animations *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    animation-delay: 0s !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+@layer components {
+  .theme-bg {
+    background-color: var(--background);
+  }
+
+  .theme-surface {
+    background-color: var(--surface);
+  }
+
+  .theme-surface-light {
+    background-color: var(--surface-light);
+  }
+
+  .theme-text {
+    color: var(--foreground);
+  }
+
+  .theme-muted {
+    color: var(--muted);
+  }
+
+  .theme-border {
+    border-color: var(--border);
+  }
+
+  .accent-text {
+    color: var(--accent);
+  }
+
+  .accent-bg {
+    background-color: var(--accent) !important;
+  }
+
+  .accent-border {
+  border-color: var(--accent) !important;
+}
+
+  .accent-ring {
+  --tw-ring-color: var(--accent) !important;
+}
+
+  .accent-shadow {
+    box-shadow: 0 8px 30px rgba(var(--accent-rgb), 0.2);
+  }
+
+  .accent-hover:hover {
+  color: var(--accent);
+}
+
+.accent-bg-hover:hover {
+  background-color: var(--accent);
+}
+
+.accent-border-hover:hover {
+  border-color: var(--accent);
+}
+
+.accent-ring {
+  --tw-ring-color: var(--accent);
+}
+
+.accent-glow {
+  box-shadow:
+    0 0 0 1px rgba(var(--accent-rgb), 0.15),
+    0 8px 30px rgba(var(--accent-rgb), 0.2);
+}
 }
 
 @layer utilities {
@@ -42,16 +156,16 @@
   }
 
   .login-rise {
-    animation: login-rise .55s cubic-bezier(.2, .8, .2, 1) both;
+    animation: login-rise 0.55s cubic-bezier(.2, .8, .2, 1) both;
   }
 
   .login-card {
-    animation: login-card .5s cubic-bezier(.2, .8, .2, 1) both;
+    animation: login-card 0.5s cubic-bezier(.2, .8, .2, 1) both;
   }
 
   .login-stagger,
   .login-input {
-    animation: login-stagger .45s cubic-bezier(.2, .8, .2, 1) both;
+    animation: login-stagger 0.45s cubic-bezier(.2, .8, .2, 1) both;
   }
 
   .login-shine {
@@ -63,8 +177,15 @@
     position: absolute;
     inset: 0;
     transform: translateX(-120%) skewX(-18deg);
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,.42), transparent);
-    transition: transform .65s ease;
+
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.42),
+      transparent
+    );
+
+    transition: transform 0.65s ease;
   }
 
   .login-shine:hover::before {
@@ -74,8 +195,9 @@
   @keyframes login-rise {
     from {
       opacity: 0;
-      transform: translateY(16px) scale(.96);
+      transform: translateY(16px) scale(0.96);
     }
+
     to {
       opacity: 1;
       transform: translateY(0) scale(1);
@@ -85,8 +207,9 @@
   @keyframes login-card {
     from {
       opacity: 0;
-      transform: translateY(18px) scale(.98);
+      transform: translateY(18px) scale(0.98);
     }
+
     to {
       opacity: 1;
       transform: translateY(0) scale(1);
@@ -98,6 +221,7 @@
       opacity: 0;
       transform: translateY(10px);
     }
+
     to {
       opacity: 1;
       transform: translateY(0);
@@ -109,6 +233,7 @@
     100% {
       background-position: 0% 50%;
     }
+
     50% {
       background-position: 100% 50%;
     }

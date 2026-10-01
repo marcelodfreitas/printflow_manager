@@ -2,11 +2,11 @@
 
 import { useState, useMemo } from "react";
 import { Calculator, Beaker, RotateCcw } from "lucide-react";
-import { Header } from "@/components/layout/Header";
-import { Button } from "@/components/ui/Button";
-import { Input } from "@/components/ui/Input";
-import { Select } from "@/components/ui/Select";
-import { Card, CardContent } from "@/components/ui/Card";
+
+import Button from "@/components/ui/Button";
+import Input from "@/components/ui/Input";
+import Select from "@/components/ui/Select";
+import { Card, CardContent } from "@/components/common";
 import { useFilaments } from "@/hooks/useFilaments";
 import { usePrinters } from "@/hooks/usePrinters";
 import { useOrders } from "@/hooks/useOrders";
@@ -37,12 +37,13 @@ const defaultInputs: CalcInputs = {
   margin: "30",
 };
 
-const tabs = [
-  { id: "calculator", label: "Calculadora", icon: Calculator },
-  { id: "simulation", label: "Simulação", icon: Beaker },
-];
+const tabs = [{ id: "calculator", label: "Calculadora", icon: Calculator }];
 
-function useCalculator(inputs: CalcInputs, filaments: Filament[], printers: Printer[]) {
+function useCalculator(
+  inputs: CalcInputs,
+  filaments: Filament[],
+  printers: Printer[],
+) {
   return useMemo(() => {
     const filament = filaments.find((f) => f.id === inputs.filamentId);
     const printer = printers.find((p) => p.id === inputs.printerId);
@@ -60,14 +61,21 @@ function useCalculator(inputs: CalcInputs, filaments: Filament[], printers: Prin
     const costPerGram = filament ? filament.costPerKg / 1000 : 0;
     const materialCost = effectiveWeight * costPerGram;
 
-    const powerKW = printer?.powerConsumption ? printer.powerConsumption / 1000 : 0;
+    const powerKW = printer?.powerConsumption
+      ? printer.powerConsumption / 1000
+      : 0;
     const energyCost = printTime * powerKW * energyRate;
 
     const depreciationCost = printer ? printTime * printer.costPerHour : 0;
 
     const laborCost = printTime * laborRate;
 
-    const totalCost = materialCost + energyCost + depreciationCost + laborCost + additionalCosts;
+    const totalCost =
+      materialCost +
+      energyCost +
+      depreciationCost +
+      laborCost +
+      additionalCosts;
     const profit = totalCost * (margin / 100);
     const suggestedPrice = totalCost + profit;
 
@@ -107,7 +115,8 @@ export default function CalculadoraPage() {
   }
 
   const currentInputs = activeTab === "calculator" ? calcInputs : simInputs;
-  const setCurrentInputs = activeTab === "calculator" ? setCalcInputs : setSimInputs;
+  const setCurrentInputs =
+    activeTab === "calculator" ? setCalcInputs : setSimInputs;
   const result = activeTab === "calculator" ? calcResult : simResult;
   function handleReset() {
     if (activeTab === "calculator") setCalcInputs(defaultInputs);
@@ -135,10 +144,6 @@ export default function CalculadoraPage() {
     <div className="relative min-h-screen bg-[#050914]">
       <div className="pointer-events-none fixed -bottom-40 -right-40 h-[500px] w-[500px] rounded-full bg-[#071124]/60 blur-[120px]" />
       <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(255,255,255,0.06)_1px,transparent_0)] bg-[size:32px_32px]" />
-      <Header
-        title="Calculadora de Custos"
-        className="border-b border-white/10 bg-white/[0.02] backdrop-blur-xl text-white"
-      />
 
       <div className="space-y-5 px-4 py-5 sm:p-6 sm:space-y-6">
         {/* Tabs */}
@@ -149,7 +154,7 @@ export default function CalculadoraPage() {
               onClick={() => setActiveTab(tab.id)}
               className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-all ${
                 activeTab === tab.id
-                  ? "bg-[#fd6401] text-white shadow-lg"
+                  ? "accent-bg text-white shadow-lg"
                   : "text-white/50 hover:text-white"
               }`}
             >
@@ -163,7 +168,8 @@ export default function CalculadoraPage() {
           {/* Form */}
           <div className="space-y-6">
             {/* Auto-fill */}
-            <Card className="border border-white/10 bg-[#0A1120] backdrop-blur-2xl shadow-2xl shadow-black/40">
+            <Card className="border border-white/10 bg-white/[0.03] backdrop-blur-2xl shadow-2xl shadow-black/40">
+              {" "}
               <CardContent className="p-5">
                 <h3 className="mb-4 text-xs font-semibold uppercase tracking-[0.2em] text-white/40">
                   Preenchimento Automático
@@ -240,7 +246,7 @@ export default function CalculadoraPage() {
                       placeholder="100"
                       value={currentInputs.weight}
                       onChange={(e) => updateInput({ weight: e.target.value })}
-                      className="bg-white/5 border-white/10 text-white placeholder:text-white/30 focus:border-[#fd6401]/50 focus:ring-[#fd6401]/20"
+                      className="bg-white/5 border-white/10 text-white placeholder:text-white/30 focus:border-[var(--accent)] focus:ring-[var(--accent)]"
                     />
                     <Input
                       id="waste"
@@ -251,7 +257,7 @@ export default function CalculadoraPage() {
                       placeholder="10"
                       value={currentInputs.waste}
                       onChange={(e) => updateInput({ waste: e.target.value })}
-                      className="bg-white/5 border-white/10 text-white placeholder:text-white/30 focus:border-[#fd6401]/50 focus:ring-[#fd6401]/20"
+                      className="bg-white/5 border-white/10 text-white placeholder:text-white/30 focus:border-[var(--accent)] focus:ring-[var(--accent)]"
                     />
                     <Input
                       id="printTime"
@@ -261,8 +267,10 @@ export default function CalculadoraPage() {
                       min="0"
                       placeholder="5"
                       value={currentInputs.printTime}
-                      onChange={(e) => updateInput({ printTime: e.target.value })}
-                      className="bg-white/5 border-white/10 text-white placeholder:text-white/30 focus:border-[#fd6401]/50 focus:ring-[#fd6401]/20"
+                      onChange={(e) =>
+                        updateInput({ printTime: e.target.value })
+                      }
+                      className="bg-white/5 border-white/10 text-white placeholder:text-white/30 focus:border-[var(--accent)] focus:ring-[var(--accent)]"
                     />
                   </div>
 
@@ -275,8 +283,10 @@ export default function CalculadoraPage() {
                       min="0"
                       placeholder="0.80"
                       value={currentInputs.energyRate}
-                      onChange={(e) => updateInput({ energyRate: e.target.value })}
-                      className="bg-white/5 border-white/10 text-white placeholder:text-white/30 focus:border-[#fd6401]/50 focus:ring-[#fd6401]/20"
+                      onChange={(e) =>
+                        updateInput({ energyRate: e.target.value })
+                      }
+                      className="bg-white/5 border-white/10 text-white placeholder:text-white/30 focus:border-[var(--accent)] focus:ring-[var(--accent)]"
                     />
                     <Input
                       id="laborRate"
@@ -286,8 +296,10 @@ export default function CalculadoraPage() {
                       min="0"
                       placeholder="15.00"
                       value={currentInputs.laborRate}
-                      onChange={(e) => updateInput({ laborRate: e.target.value })}
-                      className="bg-white/5 border-white/10 text-white placeholder:text-white/30 focus:border-[#fd6401]/50 focus:ring-[#fd6401]/20"
+                      onChange={(e) =>
+                        updateInput({ laborRate: e.target.value })
+                      }
+                      className="bg-white/5 border-white/10 text-white placeholder:text-white/30 focus:border-[var(--accent)] focus:ring-[var(--accent)]"
                     />
                   </div>
 
@@ -300,8 +312,10 @@ export default function CalculadoraPage() {
                       min="0"
                       placeholder="0"
                       value={currentInputs.additionalCosts}
-                      onChange={(e) => updateInput({ additionalCosts: e.target.value })}
-                      className="bg-white/5 border-white/10 text-white placeholder:text-white/30 focus:border-[#fd6401]/50 focus:ring-[#fd6401]/20"
+                      onChange={(e) =>
+                        updateInput({ additionalCosts: e.target.value })
+                      }
+                      className="bg-white/5 border-white/10 text-white placeholder:text-white/30 focus:border-[var(--accent)] focus:ring-[var(--accent)]"
                     />
                     <Input
                       id="margin"
@@ -312,7 +326,7 @@ export default function CalculadoraPage() {
                       placeholder="30"
                       value={currentInputs.margin}
                       onChange={(e) => updateInput({ margin: e.target.value })}
-                      className="bg-white/5 border-white/10 text-white placeholder:text-white/30 focus:border-[#fd6401]/50 focus:ring-[#fd6401]/20"
+                      className="bg-white/5 border-white/10 text-white placeholder:text-white/30 focus:border-[var(--accent)] focus:ring-[var(--accent)]"
                     />
                   </div>
                 </div>
@@ -347,21 +361,29 @@ export default function CalculadoraPage() {
                     <>
                       <div className="flex justify-between text-white/60">
                         <span>Consumo</span>
-                        <span className="text-white">{result.powerKW.toFixed(2)} kW</span>
+                        <span className="text-white">
+                          {result.powerKW.toFixed(2)} kW
+                        </span>
                       </div>
                       <div className="flex justify-between text-white/60">
                         <span>Depreciação</span>
-                        <span className="text-white">{formatCurrency(result.printer.costPerHour)}/h</span>
+                        <span className="text-white">
+                          {formatCurrency(result.printer.costPerHour)}/h
+                        </span>
                       </div>
                     </>
                   )}
                   <div className="flex justify-between text-white/60">
                     <span>Peso efetivo</span>
-                    <span className="text-white">{result.effectiveWeight.toFixed(1)} g</span>
+                    <span className="text-white">
+                      {result.effectiveWeight.toFixed(1)} g
+                    </span>
                   </div>
                   <div className="flex justify-between text-white/60">
                     <span>Tempo</span>
-                    <span className="text-white">{result.printTime.toFixed(1)} h</span>
+                    <span className="text-white">
+                      {result.printTime.toFixed(1)} h
+                    </span>
                   </div>
                 </div>
               </CardContent>
@@ -379,7 +401,10 @@ export default function CalculadoraPage() {
                 <CostRow label="Energia" value={result.energyCost} />
                 <CostRow label="Depreciação" value={result.depreciationCost} />
                 <CostRow label="Mão de obra" value={result.laborCost} />
-                <CostRow label="Custos adicionais" value={result.additionalCosts} />
+                <CostRow
+                  label="Custos adicionais"
+                  value={result.additionalCosts}
+                />
                 <div className="h-px bg-white/10" />
                 <CostRow label="Custo total" value={result.totalCost} bold />
                 <div className="h-px bg-white/10" />
@@ -392,9 +417,10 @@ export default function CalculadoraPage() {
             </Card>
 
             {/* Suggested price */}
-            <Card className="border border-[#fd6401]/30 bg-[#fd6401]/5 backdrop-blur-2xl shadow-2xl shadow-black/40">
+            <Card className="border-2 accent-border bg-white/[0.03] backdrop-blur-2xl shadow-2xl shadow-black/40">
+              {" "}
               <CardContent className="p-5 text-center">
-                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#fd6401]/60">
+                <p className="text-xs font-semibold uppercase tracking-[0.2em] accent-text/60">
                   Preço Sugerido
                 </p>
                 <p className="mt-1 text-3xl font-bold text-white">
@@ -425,7 +451,11 @@ function CostRow({
       <span className={bold ? "font-semibold text-white" : "text-white/60"}>
         {label}
       </span>
-      <span className={color || (bold ? "font-semibold text-white" : "text-white/80")}>
+      <span
+        className={
+          color || (bold ? "font-semibold text-white" : "text-white/80")
+        }
+      >
         {formatCurrency(value)}
       </span>
     </div>

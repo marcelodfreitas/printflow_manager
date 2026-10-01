@@ -12,10 +12,10 @@ import {
 } from "lucide-react";
 import logo from "@/assets/logo.png";
 import { Header } from "@/components/layout/Header";
-import { Button } from "@/components/ui/Button";
-import { Input } from "@/components/ui/Input";
-import { Select } from "@/components/ui/Select";
-import { Card, CardContent, CardHeader } from "@/components/ui/Card";
+import Button from "@/components/ui/Button";
+import Input from "@/components/ui/Input";
+import Select from "@/components/ui/Select";
+import { Card, CardContent, CardHeader } from "@/components/common";
 import {
   Table,
   TableBody,
@@ -24,8 +24,8 @@ import {
   TableHeadCell,
   TableRow,
 } from "@/components/ui/Table";
-import { Modal } from "@/components/ui/Modal";
-import { StatusBadge } from "@/components/ui/Badge";
+import Modal from "@/components/ui/Modal";
+import { Badge } from "@/components/ui/Badge";
 import type { Quote, QuoteItem } from "@/types";
 import { useQuotes } from "@/hooks/useQuotes";
 import { formatCurrency, formatDate, translateStatus } from "@/lib/utils";
@@ -394,6 +394,42 @@ export default function QuotesPage() {
     }
   }
 
+  function StatusBadge({ status }: { status: string }) {
+  const config = {
+    pending: {
+      variant: "warning" as const,
+      label: "Pendente",
+    },
+    approved: {
+      variant: "info" as const,
+      label: "Aprovado",
+    },
+    printing: {
+      variant: "info" as const,
+      label: "Imprimindo",
+    },
+    completed: {
+      variant: "success" as const,
+      label: "Concluído",
+    },
+    delivered: {
+      variant: "success" as const,
+      label: "Entregue",
+    },
+    cancelled: {
+      variant: "danger" as const,
+      label: "Cancelado",
+    },
+  };
+
+  const current = config[status as keyof typeof config] ?? {
+    variant: "default" as const,
+    label: status,
+  };
+
+  return <Badge variant={current.variant}>{current.label}</Badge>;
+}
+
   async function generatePDF() {
     if (form.items.length === 0) {
       setFormError("Adicione pelo menos um item antes de gerar o PDF.");
@@ -581,7 +617,7 @@ export default function QuotesPage() {
   if (loading) {
     return (
       <div className="relative min-h-screen bg-[#050914]">
-        <div className="flex h-96 items-center justify-center">
+        <div className="flex items-center justify-center h-96">
           <div className="h-8 w-8 animate-spin rounded-full border-2 border-white/20 border-t-[#fd6401]" />
         </div>
       </div>
@@ -593,15 +629,14 @@ export default function QuotesPage() {
       <div className="pointer-events-none fixed -bottom-40 -right-40 h-[500px] w-[500px] rounded-full bg-[#071124]/60 blur-[120px]" />
 
       <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(255,255,255,0.06)_1px,transparent_0)] bg-[size:32px_32px]" />
-
-      <Header
+      {/* <Header
         title="Orçamentos"
-        className="border-b border-white/10 bg-white/[0.02] text-white backdrop-blur-xl"
-      />
+        className="border-b border-white/10 bg-white/[0.02] backdrop-blur-xl text-white"
+      /> */}
 
       <div className="space-y-5 px-4 py-5 sm:space-y-6 sm:p-6">
         <div className="grid gap-4 sm:grid-cols-3">
-          <Card className="border border-white/10 bg-[#050914] shadow-2xl shadow-black/40 backdrop-blur-2xl">
+          <Card className="border border-white/10 bg-[#050914] backdrop-blur-2xl shadow-2xl shadow-black/40">
             <CardContent>
               <p className="text-sm text-white">Total de Orçamentos</p>
               <p className="text-2xl font-bold text-white/70">
@@ -610,7 +645,7 @@ export default function QuotesPage() {
             </CardContent>
           </Card>
 
-          <Card className="border border-white/10 bg-[#050914] shadow-2xl shadow-black/40 backdrop-blur-2xl">
+          <Card className="border border-white/10 bg-[#050914] backdrop-blur-2xl shadow-2xl shadow-black/40">
             <CardContent>
               <p className="text-sm text-white">Aprovados</p>
               <p className="text-2xl font-bold text-green-500">
@@ -619,7 +654,7 @@ export default function QuotesPage() {
             </CardContent>
           </Card>
 
-          <Card className="border border-white/10 bg-[#050914] shadow-2xl shadow-black/40 backdrop-blur-2xl">
+          <Card className="border border-white/10 bg-[#050914] backdrop-blur-2xl shadow-2xl shadow-black/40">
             <CardContent>
               <p className="text-sm text-white">Valor Total Aprovado</p>
               <p className="text-2xl font-bold text-white/70">
@@ -633,19 +668,36 @@ export default function QuotesPage() {
           </Card>
         </div>
 
-        <Card className="border border-white/10 bg-[#050914] shadow-2xl shadow-black/40 backdrop-blur-2xl">
+        <Card className="border border-white/10 bg-[#050914] backdrop-blur-2xl shadow-2xl shadow-black/40">
           <CardHeader>
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div className="flex flex-1 flex-col gap-3 sm:flex-row sm:gap-4">
                 <div className="relative w-full max-w-sm">
                   <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/40" />
-
                   <input
                     type="text"
                     placeholder="Buscar orçamentos..."
-                    className="h-11 w-full rounded-xl border border-white/10 bg-white/5 pl-10 pr-4 text-sm text-white outline-none transition-all placeholder:text-white/30 focus:border-[#fd6401]/50 focus:ring-2 focus:ring-[#fd6401]/20"
+                    className="
+                              h-11
+                              w-full
+                              rounded-xl
+                              border
+                              border-white/10
+                              bg-white/5
+                              pl-10
+                              pr-4
+                              text-sm
+                              text-white
+                              placeholder:text-white/30
+                              outline-none
+                              transition-all
+                              duration-300
+                              focus:border-[#fd6401]/50
+                              focus:ring-2
+                              focus:ring-[#fd6401]/20
+                            "
                     value={search}
-                    onChange={(event) => setSearch(event.target.value)}
+                    onChange={(e) => setSearch(e.target.value)}
                   />
                 </div>
 
@@ -655,14 +707,30 @@ export default function QuotesPage() {
                     ...quoteStatuses,
                   ]}
                   value={statusFilter}
-                  className="w-full border-white/10 bg-white/5 text-white focus:border-[#fd6401]/50 focus:ring-[#fd6401]/20 sm:w-44"
-                  onChange={(event) => setStatusFilter(event.target.value)}
+                  className="
+                            w-full
+                            sm:w-44
+                            bg-white/5
+                            border-white/10
+                            text-white
+                            focus:border-[#fd6401]/50
+                            focus:ring-[#fd6401]/20
+                          "
+                  onChange={(e) => setStatusFilter(e.target.value)}
                 />
               </div>
 
               <Button
                 onClick={openCreate}
-                className="bg-gradient-to-r from-[#071124] to-[#0d1a35] text-white ring-1 ring-white/10 hover:ring-[#fd6401]/30"
+                className="
+                          bg-gradient-to-r
+                          from-[#071124]
+                          to-[#0d1a35]
+                          text-white
+                          ring-1
+                          ring-white/10
+                          hover:ring-[#fd6401]/30
+                        "
               >
                 <Plus className="h-4 w-4" />
                 Novo Orçamento
@@ -706,50 +774,53 @@ export default function QuotesPage() {
                   </TableHeadCell>
                 </TableRow>
               </TableHead>
-
               <TableBody>
                 {filtered.map((quote) => (
                   <TableRow key={quote.id}>
-                    <TableCell className="text-center font-mono text-xs font-medium">
+                    <TableCell className="text-center font-center font-mono text-xs font-medium">
                       #{quote.quoteNumber ?? quote.id}
                     </TableCell>
-
                     <TableCell className="text-center text-xs">
                       {quote.productName || "—"}
                     </TableCell>
-
-                    <TableCell>{quote.clientName || "—"}</TableCell>
-
+                    <TableCell>{quote.clientName}</TableCell>
                     <TableCell className="text-xs">
                       {quote.items.length} item(ns)
                     </TableCell>
-
                     <TableCell>{formatCurrency(quote.subtotal)}</TableCell>
-
                     <TableCell className="font-medium">
                       {formatCurrency(quote.total)}
                     </TableCell>
-
                     <TableCell>
                       <StatusBadge status={quote.status} />
                     </TableCell>
-
                     <TableCell className="text-xs">
-                      {quote.validUntil ? formatDate(quote.validUntil) : "—"}
+                      {formatDate(quote.validUntil)}
                     </TableCell>
-
                     <TableCell className="text-xs">
                       {formatDate(quote.createdAt)}
                     </TableCell>
-
                     <TableCell className="text-right">
                       <div className="flex items-center justify-end gap-1.5">
                         <Button
                           variant="ghost"
                           size="sm"
                           onClick={() => openEdit(quote)}
-                          className="h-10 w-10 rounded-lg border border-white/10 bg-white/[0.03] text-white/60 transition-all hover:border-[#fd6401]/40 hover:bg-[#fd6401]/10 hover:text-[#fd6401]"
-                        >
+                          className="
+                                    h-10
+                                    w-10
+                                    rounded-lg
+                                    border
+                                    border-white/10
+                                    bg-white/[0.03]
+                                    text-white/60
+                                    transition-all
+                                    duration-200
+                                    hover:border-[#fd6401]/40
+                                    hover:bg-[#fd6401]/10
+                                    hover:text-[#fd6401]
+                                  "
+                                                      >
                           <Pencil className="h-4 w-4" />
                         </Button>
 
@@ -757,19 +828,31 @@ export default function QuotesPage() {
                           variant="ghost"
                           size="sm"
                           onClick={() => handleDelete(quote.id)}
-                          className="h-10 w-10 rounded-lg border border-white/10 bg-white/[0.03] text-white/60 transition-all hover:border-red-500/40 hover:bg-red-500/10 hover:text-red-400"
-                        >
+                          className="
+                                    h-10
+                                    w-10
+                                    rounded-lg
+                                    border
+                                    border-white/10
+                                    bg-white/[0.03]
+                                    text-white/60
+                                    transition-all
+                                    duration-200
+                                    hover:border-red-500/40
+                                    hover:bg-red-500/10
+                                    hover:text-red-400
+                                  "
+                                                      >
                           <Trash2 className="h-4 w-4" />
                         </Button>
                       </div>
                     </TableCell>
                   </TableRow>
                 ))}
-
                 {filtered.length === 0 && (
                   <TableRow>
                     <TableCell colSpan={10}>
-                      <div className="py-8 text-center text-sm text-white/40">
+                      <div className="py-8 text-center text-sm text-gray-500">
                         Nenhum orçamento encontrado
                       </div>
                     </TableCell>
@@ -785,7 +868,7 @@ export default function QuotesPage() {
         isOpen={modalOpen}
         onClose={() => setModalOpen(false)}
         title={editingQuote ? "Editar Orçamento" : "Novo Orçamento"}
-        size="2xl"
+        size="xl"
       >
         <form onSubmit={handleSave}>
           <div className="grid gap-8 lg:grid-cols-[1fr_440px]">
@@ -1172,15 +1255,20 @@ export default function QuotesPage() {
                   </div>
                 </div>
 
-                <Button
-                  type="button"
-                  onClick={addItem}
-                  className="w-full bg-[#fd6401] text-white hover:bg-[#ff7b24]"
-                >
-                  <Plus className="mr-2 h-4 w-4" />
-                  Adicionar item ao orçamento
-                </Button>
-              </div>
+                  <Button
+                    type="button"
+                    onClick={addItem}
+                    className="
+      h-9
+      px-6
+      bg-[#fd6401]
+      hover:bg-[#ff7b24]
+      whitespace-nowrap
+    "
+                  >
+                    Adicionar Item
+                  </Button>
+                </div>
 
               <div className="border-t border-white/10 bg-white/[0.03] p-5">
                 <h4 className="mb-3 text-sm font-semibold text-white">
@@ -1289,7 +1377,15 @@ export default function QuotesPage() {
 
               <Button
                 type="submit"
-                className="bg-gradient-to-r from-[#071124] to-[#0d1a35] text-white ring-1 ring-white/10 hover:ring-[#fd6401]/30"
+                className="
+            bg-gradient-to-r
+            from-[#071124]
+            to-[#0d1a35]
+            text-white
+            ring-1
+            ring-white/10
+            hover:ring-[#fd6401]/30
+          "
               >
                 {editingQuote ? "Salvar alterações" : "Criar Orçamento"}
               </Button>

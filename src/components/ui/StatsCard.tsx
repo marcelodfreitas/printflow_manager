@@ -18,18 +18,24 @@ export function StatsCard({
 }: StatsCardProps) {
   return (
     <Card className={className}>
-      <CardContent>
-        <div className="flex items-center gap-4">
-          <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-[#fd6401]/10 text-[#fd6401]">
-            {icon}
+      <CardContent className="p-4 sm:p-6">
+        <div className="flex items-center gap-3 sm:gap-4">
+<div className="flex h-10 -ml-2 w-10 shrink-0 items-center justify-center rounded-xl accent-bg/10 accent-text sm:h-12 sm:w-12">            {icon}
           </div>
 
-          <div className="flex-1">
-            <p className="text-sm font-medium text-white/50">{title}</p>
-            <p className="text-2xl font-bold text-white">{value}</p>
+          <div className="min-w-0 flex-1">
+            <p className="text-sm font-medium text-white/50">
+              {title}
+            </p>
+
+            <p className="text-[15px] font-bold text-white sm:text-2xl">
+              {value}
+            </p>
 
             {description && (
-              <p className="text-xs text-gray-500">{description}</p>
+              <p className="text-xs text-white/40">
+                {description}
+              </p>
             )}
           </div>
         </div>

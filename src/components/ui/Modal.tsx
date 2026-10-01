@@ -1,95 +1,150 @@
-"use client";
-
-import { type ReactNode, useEffect } from "react";
+import { ReactNode, useEffect } from "react";
 import { X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface ModalProps {
-  isOpen: boolean;
+  open?: boolean;
+  isOpen?: boolean;
   onClose: () => void;
   title: string;
+  description?: string;
   children: ReactNode;
-  size?: "sm" | "md" | "lg" | "xl" | "2xl";
+  size?: "sm" | "md" | "lg" | "xl";
   className?: string;
 }
 
-const sizeClasses = {
-  sm: "max-w-sm",
-  md: "max-w-md",
-  lg: "max-w-lg",
-  xl: "max-w-xl",
-  "2xl": "max-w-6xl",
-};
-
-export function Modal({
+export default function Modal({
+  open,
   isOpen,
   onClose,
   title,
+  description,
   children,
   size = "md",
   className,
 }: ModalProps) {
-  useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "";
-    }
-    return () => {
-      document.body.style.overflow = "";
-    };
-  }, [isOpen]);
+  const visible = isOpen ?? open ?? false;
 
-  if (!isOpen) return null;
+  useEffect(() => {
+    function handleEscape(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        onClose();
+      }
+    }
+
+    if (visible) {
+      document.addEventListener("keydown", handleEscape);
+    }
+
+    return () => {
+      document.removeEventListener("keydown", handleEscape);
+    };
+  }, [visible, onClose]);
+
+  if (!visible) return null;
+
+  const sizes = {
+    sm: "max-w-md",
+    md: "max-w-xl",
+    lg: "max-w-3xl",
+    xl: "max-w-5xl",
+  };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center p-0 sm:items-center sm:p-4">
-      <div
-        className="fixed inset-0 bg-black/60 transition-opacity"
-        onClick={onClose}
-      />
+    <div
+      className="
+        fixed
+        inset-0
+        z-50
+        flex
+        items-center
+        justify-center
+        bg-black/60
+        p-4
+        backdrop-blur-sm
+      "
+      onMouseDown={onClose}
+    >
       <div
         className={cn(
-  `
-  relative
-  z-10
-  mx-0
-  w-full
-  max-h-[92dvh]
-  overflow-y-auto
-  rounded-t-2xl
-  border
-  border-white/10
-  bg-[#0a1120]/95
-  backdrop-blur-2xl
-  p-4
-  shadow-2xl
-  shadow-black/40
-  text-white
-  sm:mx-4
-  sm:rounded-2xl
-  sm:p-6
-  `,
-  sizeClasses[size],
-  className
-)}
+          `
+          flex
+          max-h-[calc(100vh-2rem)]
+          w-full
+          ${sizes[size]}
+          flex-col
+          overflow-hidden
+          rounded-3xl
+          border
+          border-white/10
+          bg-[#08111f]
+          shadow-2xl
+          shadow-black/50
+          `,
+          className,
+        )}
+        onMouseDown={(e) => e.stopPropagation()}
       >
-        <div className="sticky -top-4 z-10 mb-4 flex items-center justify-between border-b border-white/10 bg-[#0a1120]/95 pb-3 pt-1 backdrop-blur-2xl sm:static sm:border-b-0 sm:bg-transparent sm:pb-0 sm:pt-0">
-          <h2 className="text-lg font-semibold text-inherit">{title}</h2>
+        {/* HEADER */}
+        <div
+          className="
+            flex
+            shrink-0
+            items-start
+            justify-between
+            border-b
+            border-white/10
+            px-5
+            py-4
+            sm:px-6
+            sm:py-5
+          "
+        >
+          <div className="min-w-0 pr-4">
+            <h2 className="text-lg font-semibold text-white">
+              {title}
+            </h2>
+
+            {description && (
+              <p className="mt-1 text-sm text-white/40">
+                {description}
+              </p>
+            )}
+          </div>
+
           <button
+            type="button"
             onClick={onClose}
-className="
-rounded-lg
-p-1
-text-white/50
-transition-colors
-hover:bg-white/5
-hover:text-white
-"          >
+            aria-label="Fechar"
+            className="
+              shrink-0
+              rounded-lg
+              p-2
+              text-white/40
+              transition
+              hover:bg-white/10
+              hover:text-white
+            "
+          >
             <X className="h-5 w-5" />
           </button>
         </div>
-        {children}
+
+        {/* CONTENT */}
+        <div
+          className="
+            min-h-0
+            flex-1
+            overflow-y-auto
+            overscroll-contain
+            px-5
+            py-5
+            sm:px-6
+            sm:py-6
+          "
+        >
+          {children}
+        </div>
       </div>
     </div>
   );

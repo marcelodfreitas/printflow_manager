@@ -5,11 +5,27 @@ interface CardProps extends HTMLAttributes<HTMLDivElement> {
   children: ReactNode;
 }
 
-export function Card({ className, children, ...props }: CardProps) {
+interface CardHeaderProps extends HTMLAttributes<HTMLDivElement> {
+  children: ReactNode;
+}
+
+interface CardContentProps extends HTMLAttributes<HTMLDivElement> {
+  children: ReactNode;
+}
+
+interface CardFooterProps extends HTMLAttributes<HTMLDivElement> {
+  children: ReactNode;
+}
+
+export function Card({
+  children,
+  className,
+  ...props
+}: CardProps) {
   return (
     <div
       className={cn(
-        "rounded-xl border border-gray-200 bg-white shadow-sm",
+        "rounded-2xl border border-white/10 bg-white/[0.03]",
         className
       )}
       {...props}
@@ -20,13 +36,13 @@ export function Card({ className, children, ...props }: CardProps) {
 }
 
 export function CardHeader({
-  className,
   children,
+  className,
   ...props
-}: CardProps) {
+}: CardHeaderProps) {
   return (
     <div
-      className={cn("border-b border-gray-100 px-6 py-4", className)}
+      className={cn("p-5", className)}
       {...props}
     >
       {children}
@@ -35,12 +51,30 @@ export function CardHeader({
 }
 
 export function CardContent({
-  className,
   children,
+  className,
   ...props
-}: CardProps) {
+}: CardContentProps) {
   return (
-    <div className={cn("px-6 py-4", className)} {...props}>
+    <div
+      className={cn("px-5 pb-5", className)}
+      {...props}
+    >
+      {children}
+    </div>
+  );
+}
+
+export function CardFooter({
+  children,
+  className,
+  ...props
+}: CardFooterProps) {
+  return (
+    <div
+      className={cn("border-t border-white/10 px-5 py-4", className)}
+      {...props}
+    >
       {children}
     </div>
   );

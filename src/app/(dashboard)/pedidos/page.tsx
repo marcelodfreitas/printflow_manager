@@ -2,11 +2,11 @@
 
 import { useState } from "react";
 import { Plus, Search } from "lucide-react";
-import { Header } from "@/components/layout/Header";
-import { Button } from "@/components/ui/Button";
-import { Input } from "@/components/ui/Input";
-import { Select } from "@/components/ui/Select";
-import { Card, CardContent, CardHeader } from "@/components/ui/Card";
+
+import Button from "@/components/ui/Button";
+import Input from "@/components/ui/Input";
+import Select from "@/components/ui/Select";
+import { Card, CardContent, CardHeader } from "@/components/common";
 import {
   Table,
   TableBody,
@@ -16,8 +16,8 @@ import {
   TableRow,
 } from "@/components/ui/Table";
 import { Pencil, Trash2 } from "lucide-react";
-import { Modal } from "@/components/ui/Modal";
-import { StatusBadge } from "@/components/ui/Badge";
+import Modal from "@/components/ui/Modal";
+import { Badge } from "@/components/ui/Badge";
 import type { Order } from "@/types";
 import { useOrders } from "@/hooks/useOrders";
 import { useClients } from "@/hooks/useClients";
@@ -36,6 +36,42 @@ const orderStatuses = [
   { value: "delivered", label: "Entregue", dot: "bg-emerald-400" },
   { value: "cancelled", label: "Cancelado", dot: "bg-red-400" },
 ];
+
+function StatusBadge({ status }: { status: string }) {
+  const config = {
+    pending: {
+      variant: "warning" as const,
+      label: "Pendente",
+    },
+    approved: {
+      variant: "info" as const,
+      label: "Aprovado",
+    },
+    printing: {
+      variant: "info" as const,
+      label: "Imprimindo",
+    },
+    completed: {
+      variant: "success" as const,
+      label: "Concluído",
+    },
+    delivered: {
+      variant: "success" as const,
+      label: "Entregue",
+    },
+    cancelled: {
+      variant: "danger" as const,
+      label: "Cancelado",
+    },
+  };
+
+  const current = config[status as keyof typeof config] ?? {
+    variant: "default" as const,
+    label: status,
+  };
+
+  return <Badge variant={current.variant}>{current.label}</Badge>;
+}
 
 export default function OrdersPage() {
   const {
@@ -238,11 +274,6 @@ export default function OrdersPage() {
 
       <div className="relative"></div>
 
-      <Header
-        title="Pedidos"
-        className="border-b border-white/10 bg-white/[0.02] backdrop-blur-xl text-white"
-      />
-
       {ordersLoading ? (
         <div className="flex min-h-[200px] items-center justify-center px-4 py-5 text-white/50 sm:p-6">
           Carregando...
@@ -251,13 +282,13 @@ export default function OrdersPage() {
         <div className="space-y-5 px-4 py-5 sm:p-6 sm:space-y-6">
           <div className="grid gap-4 sm:grid-cols-3">
             <Card className="border border-white/10 bg-[#050914] backdrop-blur-2xl shadow-2xl shadow-black/40">
-              <CardContent>
+              <CardContent className="px-8 py-5">
                 <p className="text-sm text-gray-500">Total de Pedidos</p>
                 <p className="text-2xl font-bold text-white">{orders.length}</p>
               </CardContent>
             </Card>
             <Card className="border border-white/10 bg-[#050914] backdrop-blur-2xl shadow-2xl shadow-black/40">
-              <CardContent>
+              <CardContent className="px-8 py-5">
                 <p className="text-sm text-gray-500">Receita Total</p>
                 <p className="text-2xl font-bold text-white">
                   {formatCurrency(totalRevenue)}
@@ -265,7 +296,7 @@ export default function OrdersPage() {
               </CardContent>
             </Card>
             <Card className="border border-white/10 bg-[#050914] backdrop-blur-2xl shadow-2xl shadow-black/40">
-              <CardContent>
+              <CardContent className="px-8 py-5">
                 <p className="text-sm text-gray-500">Em Andamento</p>
                 <p className="text-2xl font-bold text-white">
                   {
@@ -278,7 +309,8 @@ export default function OrdersPage() {
             </Card>
           </div>
 
-          <Card className="border border-white/10 bg-[#050914] backdrop-blur-2xl shadow-2xl shadow-black/40">
+          <Card className="border border-white/10 bg-white/[0.03] backdrop-blur-2xl shadow-2xl shadow-black/40">
+            {" "}
             <CardHeader className="border-b border-white/5">
               <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div className="flex flex-1 flex-col gap-3 sm:flex-row sm:gap-4">
@@ -305,9 +337,9 @@ export default function OrdersPage() {
                               outline-none
                               transition-all
                               duration-300
-                              focus:border-[#fd6401]/50
+                              focus:border-[var(--accent)]/50
                               focus:ring-2
-                              focus:ring-[#fd6401]/20
+                              focus:ring-[var(--accent)]/20
                             "
                     />
                   </div>
@@ -326,8 +358,8 @@ export default function OrdersPage() {
           bg-white/5
           border-white/10
           text-white
-          focus:border-[#fd6401]/50
-          focus:ring-[#fd6401]/20
+          focus:border-[var(--accent)]/50
+          focus:ring-[var(--accent)]/20
         "
                   />
                 </div>
@@ -335,15 +367,7 @@ export default function OrdersPage() {
                 {/* Botão */}
                 <Button
                   onClick={openCreate}
-                  className="
-        bg-gradient-to-r
-        from-[#071124]
-        to-[#0d1a35]
-        text-white
-        ring-1
-        ring-white/10
-        hover:ring-[#fd6401]/30
-      "
+                  className="bg-gradient-to-r from-[#071124] to-[#0d1a35] text-white shadow-lg shadow-black/30 ring-1 ring-white/10 transition-all duration-300 hover:shadow-[0_8px_30px_rgba(var(--accent-rgb),0.20)] hover:ring-[rgba(var(--accent-rgb),0.30)]"
                 >
                   <Plus className="h-4 w-4" />
                   Novo Pedido
@@ -351,113 +375,341 @@ export default function OrdersPage() {
               </div>
             </CardHeader>
             <CardContent className="p-0">
-              <Table>
-                <TableHead>
-                  <TableRow>
-                    <TableHeadCell className="text-center text-white/50">Pedido</TableHeadCell>
-                    <TableHeadCell className="text-center text-white/50">Produto</TableHeadCell>
-                    <TableHeadCell className="text-center text-white/50">Cliente</TableHeadCell>
-                    <TableHeadCell className="text-center text-white/50">Impressora</TableHeadCell>
-                    <TableHeadCell className="text-center text-white/50">Filamento</TableHeadCell>
-                    <TableHeadCell className="text-center text-white/50">Qtd</TableHeadCell>
-                    <TableHeadCell className="text-center text-white/50">Horas</TableHeadCell>
-                    <TableHeadCell className="text-center text-white/50">Valor</TableHeadCell>
-                    <TableHeadCell className="text-center text-white/50">Status</TableHeadCell>
-                    <TableHeadCell className="text-center text-white/50">Criação</TableHeadCell>
-                    <TableHeadCell className="text-center text-white/50">
-                      Ações
-                    </TableHeadCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {filtered.map((order) => (
-                    <TableRow key={order.id}>
-                      <TableCell className="text-center font-mono text-xs font-medium">
-                        #{order.orderNumber ?? order.id}
-                      </TableCell>
-                      <TableCell className="text-center text-[9px]">
-                        {order.productName || "—"}
-                      </TableCell>
-                      <TableCell className="text-center max-w-[180px] whitespace-nowrap overflow-hidden text-ellipsis text-[10px]">
-                        {order.clientName}
-                      </TableCell>
-                      <TableCell className="text-center text-xs">
-                        {order.printerName}
-                      </TableCell>
-                      <TableCell className="text-center text-xs">
-                        {order.filamentName}
-                      </TableCell>
-                      <TableCell className="text-center">{order.quantity}</TableCell>
-                      <TableCell className="text-center">{order.totalHours}h</TableCell>
-                      <TableCell className="text-center font-medium">
-                        {formatCurrency(order.price)}
-                      </TableCell>
-                      <TableCell className="text-center">
-                        <StatusBadge status={order.status} />
-                      </TableCell>
-                      <TableCell className="text-center text-xs">
-                        {formatDate(order.createdAt)}
-                      </TableCell>
-                      <TableCell className="text-center">
-  <div className="flex items-center justify-center gap-1.5">
-  <Button
-    variant="ghost"
-    size="sm"
-    onClick={() => openEdit(order)}
-    className="
-      h-10
-      w-10
-      rounded-lg
-      border
-      border-white/10
-      bg-white/[0.03]
-      text-white/60
-      transition-all
-      duration-200
-      hover:border-[#fd6401]/40
-      hover:bg-[#fd6401]/10
-      hover:text-[#fd6401]
-    "
-  >
-    <Pencil className="h-4 w-4" />
-  </Button>
-
-  <Button
-    variant="ghost"
-    size="sm"
-    onClick={() => handleDelete(order.id)}
-    className="
-      h-10
-      w-10
-      rounded-lg
-      border
-      border-white/10
-      bg-white/[0.03]
-      text-white/60
-      transition-all
-      duration-200
-      hover:border-red-500/40
-      hover:bg-red-500/10
-      hover:text-red-400
-    "
-  >
-    <Trash2 className="h-4 w-4" />
-  </Button>
-</div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                  {filtered.length === 0 && (
+              {/* DESKTOP — tabela */}
+              <div className="hidden md:block">
+                <Table>
+                  <TableHead>
                     <TableRow>
-                      <TableCell colSpan={11}>
-                        <div className="py-8 text-center text-sm text-gray-500">
-                          Nenhum pedido encontrado
-                        </div>
-                      </TableCell>
+                      <TableHeadCell className="text-center text-white/50">
+                        Pedido
+                      </TableHeadCell>
+
+                      <TableHeadCell className="text-center text-white/50">
+                        Produto
+                      </TableHeadCell>
+
+                      <TableHeadCell className="text-center text-white/50">
+                        Cliente
+                      </TableHeadCell>
+
+                      <TableHeadCell className="text-center text-white/50">
+                        Impressora
+                      </TableHeadCell>
+
+                      <TableHeadCell className="text-center text-white/50">
+                        Filamento
+                      </TableHeadCell>
+
+                      <TableHeadCell className="text-center text-white/50">
+                        Qtd
+                      </TableHeadCell>
+
+                      <TableHeadCell className="text-center text-white/50">
+                        Horas
+                      </TableHeadCell>
+
+                      <TableHeadCell className="text-center text-white/50">
+                        Valor
+                      </TableHeadCell>
+
+                      <TableHeadCell className="text-center text-white/50">
+                        Status
+                      </TableHeadCell>
+
+                      <TableHeadCell className="text-center text-white/50">
+                        Criação
+                      </TableHeadCell>
+
+                      <TableHeadCell className="text-center text-white/50">
+                        Ações
+                      </TableHeadCell>
                     </TableRow>
-                  )}
-                </TableBody>
-              </Table>
+                  </TableHead>
+
+                  <TableBody>
+                    {filtered.map((order) => (
+                      <TableRow key={order.id}>
+                        <TableCell className="text-center font-mono text-xs font-medium">
+                          #{order.orderNumber ?? order.id}
+                        </TableCell>
+
+                        <TableCell className="text-center text-[9px]">
+                          {order.productName || "—"}
+                        </TableCell>
+
+                        <TableCell className="max-w-[180px] overflow-hidden text-center text-[10px] whitespace-nowrap text-ellipsis">
+                          {order.clientName}
+                        </TableCell>
+
+                        <TableCell className="text-center text-xs">
+                          {order.printerName}
+                        </TableCell>
+
+                        <TableCell className="text-center text-xs">
+                          {order.filamentName}
+                        </TableCell>
+
+                        <TableCell className="text-center">
+                          {order.quantity}
+                        </TableCell>
+
+                        <TableCell className="text-center">
+                          {order.totalHours}h
+                        </TableCell>
+
+                        <TableCell className="text-center font-medium">
+                          {formatCurrency(order.price)}
+                        </TableCell>
+
+                        <TableCell className="text-center">
+                          <StatusBadge status={order.status} />
+                        </TableCell>
+
+                        <TableCell className="text-center text-xs">
+                          {formatDate(order.createdAt)}
+                        </TableCell>
+
+                        <TableCell className="text-center">
+                          <div className="flex items-center justify-center gap-1.5">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => openEdit(order)}
+                              className="
+                    h-10
+                    w-10
+                    rounded-lg
+                    border
+                    border-white/10
+                    bg-white/[0.03]
+                    text-white/60
+                    transition-all
+                    duration-200
+                    hover:border-[var(--accent)]/40
+                    hover:accent-bg
+                    hover:accent-text
+                  "
+                            >
+                              <Pencil className="h-4 w-4" />
+                            </Button>
+
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleDelete(order.id)}
+                              className="
+                    h-10
+                    w-10
+                    rounded-lg
+                    border
+                    border-white/10
+                    bg-white/[0.03]
+                    text-white/60
+                    transition-all
+                    duration-200
+                    hover:border-red-500/40
+                    hover:bg-red-500/10
+                    hover:text-red-400
+                  "
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+
+                    {filtered.length === 0 && (
+                      <TableRow>
+                        <TableCell colSpan={11}>
+                          <div className="py-8 text-center text-sm text-gray-500">
+                            Nenhum pedido encontrado
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    )}
+                  </TableBody>
+                </Table>
+              </div>
+
+              {/* MOBILE — cards */}
+              <div className="space-y-3 p-4 md:hidden">
+                {filtered.map((order) => (
+                  <div
+                    key={order.id}
+                    className="rounded-2xl
+          border
+          border-white/10
+          bg-white/[0.03]
+          p-4
+          shadow-lg
+          shadow-black/20
+          backdrop-blur-2xl"
+                  >
+                    <div className="space-y-4">
+                      {/* Cabeçalho */}
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="min-w-0">
+                          <p className="text-[11px] font-medium uppercase tracking-wider text-white/35">
+                            Pedido
+                          </p>
+
+                          <p className="mt-1 font-mono text-sm font-semibold text-white">
+                            #{order.orderNumber ?? order.id}
+                          </p>
+                        </div>
+
+                        <div className="shrink-0">
+                          <StatusBadge status={order.status} />
+                        </div>
+                      </div>
+
+                      {/* Cliente */}
+                      <div>
+                        <p className="text-[11px] font-medium uppercase tracking-wider text-white/35">
+                          Cliente
+                        </p>
+
+                        <p className="mt-1 truncate text-sm font-medium text-white">
+                          {order.clientName}
+                        </p>
+                      </div>
+
+                      {/* Produto */}
+                      <div>
+                        <p className="text-[11px] font-medium uppercase tracking-wider text-white/35">
+                          Produto
+                        </p>
+
+                        <p className="mt-1 text-sm text-white/70">
+                          {order.productName || "—"}
+                        </p>
+                      </div>
+
+                      {/* Valor + Criação */}
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <p className="text-[11px] font-medium uppercase tracking-wider text-white/35">
+                            Valor
+                          </p>
+
+                          <p className="mt-1 text-sm font-semibold text-white">
+                            {formatCurrency(order.price)}
+                          </p>
+                        </div>
+
+                        <div>
+                          <p className="text-[11px] font-medium uppercase tracking-wider text-white/35">
+                            Criação
+                          </p>
+
+                          <p className="mt-1 text-sm text-white/60">
+                            {formatDate(order.createdAt)}
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Detalhes */}
+                      <div className="grid grid-cols-2 gap-x-4 gap-y-3 border-t border-white/5 pt-3">
+                        <div>
+                          <p className="text-[11px] font-medium uppercase tracking-wider text-white/35">
+                            Impressora
+                          </p>
+
+                          <p className="mt-1 truncate text-xs text-white/60">
+                            {order.printerName || "—"}
+                          </p>
+                        </div>
+
+                        <div>
+                          <p className="text-[11px] font-medium uppercase tracking-wider text-white/35">
+                            Filamento
+                          </p>
+
+                          <p className="mt-1 truncate text-xs text-white/60">
+                            {order.filamentName || "—"}
+                          </p>
+                        </div>
+
+                        <div>
+                          <p className="text-[11px] font-medium uppercase tracking-wider text-white/35">
+                            Quantidade
+                          </p>
+
+                          <p className="mt-1 text-xs text-white/60">
+                            {order.quantity}
+                          </p>
+                        </div>
+
+                        <div>
+                          <p className="text-[11px] font-medium uppercase tracking-wider text-white/35">
+                            Horas
+                          </p>
+
+                          <p className="mt-1 text-xs text-white/60">
+                            {order.totalHours}h
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Ações */}
+                      <div className="flex items-center gap-2 border-t border-white/10 pt-3">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => openEdit(order)}
+                          className="
+                h-10
+                flex-1
+                rounded-xl
+                border
+                border-white/10
+                bg-transparent
+                text-white/60
+                transition-all
+                duration-200
+                hover:border-[var(--accent)]/40
+                hover:accent-bg
+                hover:accent-text
+              "
+                        >
+                          <Pencil className="mr-2 h-4 w-4" />
+                          Editar
+                        </Button>
+
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleDelete(order.id)}
+                          className="
+                h-10
+                flex-1
+                rounded-xl
+                border
+                border-white/10
+                bg-transparent
+                text-white/60
+                transition-all
+                duration-200
+                hover:border-red-500/40
+                hover:bg-red-500/10
+                hover:text-red-400
+              "
+                        >
+                          <Trash2 className="mr-2 h-4 w-4" />
+                          Excluir
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+
+                {filtered.length === 0 && (
+                  <div className="py-8 text-center text-sm text-white/40">
+                    Nenhum pedido encontrado
+                  </div>
+                )}
+              </div>
             </CardContent>
           </Card>
         </div>
@@ -479,8 +731,8 @@ export default function OrdersPage() {
                         border-white/10
                         text-white
                         placeholder:text-white/30
-                        focus:border-[#fd6401]/50
-                        focus:ring-[#fd6401]/20
+                        focus:border-[var(--accent)]/50
+                        focus:ring-[var(--accent)]/20
                         "
               options={products.map((p) => ({
                 value: p.id,
@@ -498,8 +750,8 @@ export default function OrdersPage() {
                         border-white/10
                         text-white
                         placeholder:text-white/30
-                        focus:border-[#fd6401]/50
-                        focus:ring-[#fd6401]/20
+                        focus:border-[var(--accent)]/50
+                        focus:ring-[var(--accent)]/20
                         "
               options={clients.map((c) => ({
                 value: c.id,
@@ -517,8 +769,8 @@ export default function OrdersPage() {
                         border-white/10
                         text-white
                         placeholder:text-white/30
-                        focus:border-[#fd6401]/50
-                        focus:ring-[#fd6401]/20
+                        focus:border-[var(--accent)]/50
+                        focus:ring-[var(--accent)]/20
                         "
               options={printerOptions.map((p) => ({
                 value: p.id,
@@ -538,8 +790,8 @@ export default function OrdersPage() {
                         border-white/10
                         text-white
                         placeholder:text-white/30
-                        focus:border-[#fd6401]/50
-                        focus:ring-[#fd6401]/20
+                        focus:border-[var(--accent)]/50
+                        focus:ring-[var(--accent)]/20
                         "
               options={filaments.map((f) => ({
                 value: f.id,
@@ -557,8 +809,8 @@ export default function OrdersPage() {
                         border-white/10
                         text-white
                         placeholder:text-white/30
-                        focus:border-[#fd6401]/50
-                        focus:ring-[#fd6401]/20
+                        focus:border-[var(--accent)]/50
+                        focus:ring-[var(--accent)]/20
                         "
               options={orderStatuses}
               value={form.status}
@@ -579,8 +831,8 @@ export default function OrdersPage() {
                         border-white/10
                         text-white
                         placeholder:text-white/30
-                        focus:border-[#fd6401]/50
-                        focus:ring-[#fd6401]/20
+                        focus:border-[var(--accent)]/50
+                        focus:ring-[var(--accent)]/20
                         "
               type="number"
               min="1"
@@ -596,8 +848,8 @@ export default function OrdersPage() {
                         border-white/10
                         text-white
                         placeholder:text-white/30
-                        focus:border-[#fd6401]/50
-                        focus:ring-[#fd6401]/20
+                        focus:border-[var(--accent)]/50
+                        focus:ring-[var(--accent)]/20
                         "
               type="number"
               step="0.5"
@@ -613,8 +865,8 @@ export default function OrdersPage() {
                         border-white/10
                         text-white
                         placeholder:text-white/30
-                        focus:border-[#fd6401]/50
-                        focus:ring-[#fd6401]/20
+                        focus:border-[var(--accent)]/50
+                        focus:ring-[var(--accent)]/20
                         "
               type="number"
               value={form.filamentGrams}
@@ -633,8 +885,8 @@ export default function OrdersPage() {
                         border-white/10
                         text-white
                         placeholder:text-white/30
-                        focus:border-[#fd6401]/50
-                        focus:ring-[#fd6401]/20
+                        focus:border-[var(--accent)]/50
+                        focus:ring-[var(--accent)]/20
                         "
               type="number"
               step="0.01"
@@ -650,8 +902,8 @@ export default function OrdersPage() {
                         border-white/10
                         text-white
                         placeholder:text-white/30
-                        focus:border-[#fd6401]/50
-                        focus:ring-[#fd6401]/20
+                        focus:border-[var(--accent)]/50
+                        focus:ring-[var(--accent)]/20
                         "
               type="date"
               value={form.deadline}
@@ -679,9 +931,9 @@ export default function OrdersPage() {
                   placeholder:text-white/30
                   outline-none
                   transition
-                  focus:border-[#fd6401]/50
+                  focus:border-[var(--accent)]/50
                   focus:ring-2
-                  focus:ring-[#fd6401]/20
+                  focus:ring-[var(--accent)]/20
                   "
           />
           {error && (
@@ -715,7 +967,7 @@ export default function OrdersPage() {
                         text-white
                         ring-1
                         ring-white/10
-                        hover:ring-[#fd6401]/30
+                        hover:ring-[var(--accent)]/30
                         "
             >
               {editingOrder ? "Salvar" : "Criar Pedido"}

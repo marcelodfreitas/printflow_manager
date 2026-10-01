@@ -9,7 +9,12 @@ import {
   Menu,
   Package,
   Wrench,
+  ChevronDown,
+  UserRound,
+  Settings,
+  LogOut,
 } from "lucide-react";
+import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 import { useMobileNav } from "@/contexts/MobileNavContext";
 import { useNotifications } from "@/hooks/useNotifications";
@@ -44,16 +49,48 @@ function NotificationIcon({ type }: { type: AppNotification["type"] }) {
 }
 
 export function Header({ title, className }: HeaderProps) {
-  const { user } = useAuth();
+  const pathname = usePathname();
+
+  const pageTitles: Record<string, string> = {
+    "/": "Dashboard",
+    "/clientes": "Clientes",
+    "/produtos": "Produtos",
+    "/pedidos": "Pedidos",
+    "/orcamentos": "Orçamentos",
+    "/calculadora": "Calculadora de Custos",
+    "/impressoras": "Impressoras",
+    "/filamentos": "Filamentos",
+    "/settings": "Configurações",
+    "/settings/profile": "Conta",
+    "/settings/notifications": "Notificações",
+    "/settings/appearance": "Aparência",
+    "/settings/system": "Sistema",
+    "/settings/printers": "Impressoras",
+    "/admin": "Administração",
+  };
+
+  const currentTitle =
+    title ||
+    pageTitles[pathname] ||
+    Object.entries(pageTitles).find(
+      ([path]) => path !== "/" && pathname.startsWith(`${path}/`),
+    )?.[1] ||
+    "PrintFlow";
+
+  const { user, profile, logout } = useAuth();
+
   const { toggle } = useMobileNav();
-  const { notifications, unreadCount, refresh, markAllRead } = useNotifications();
+  const { notifications, unreadCount, refresh, markAllRead } =
+    useNotifications();
   const [notificationsOpen, setNotificationsOpen] = useState(false);
 
-  const companyName = (user?.user_metadata?.company as string) || (user?.user_metadata?.name as string) || "Perfil";
-  const companyAvatarUrl = user?.user_metadata?.avatar_url as string | undefined;
-
   return (
-    <header className={cn("sticky top-0 z-30 flex min-h-[56px] items-center gap-3 px-4 sm:px-6", className)}>
+    <header
+      className={cn(
+        "sticky top-0 z-30 flex min-h-[72px] shrink-0 items-center gap-3 border-b border-white/10 bg-[#050914]/95 px-4 backdrop-blur-xl sm:px-6",
+        className,
+      )}
+    >
       <button
         onClick={toggle}
         aria-label="Abrir menu"
@@ -63,9 +100,9 @@ export function Header({ title, className }: HeaderProps) {
       </button>
 
       <div className="min-w-0 flex-1">
-        {title && (
-          <h1 className="truncate text-base font-semibold text-white sm:text-lg">{title}</h1>
-        )}
+        <h1 className="truncate text-base font-semibold text-white sm:text-lg">
+          {currentTitle}
+        </h1>
       </div>
 
       <div className="relative">
@@ -79,7 +116,7 @@ export function Header({ title, className }: HeaderProps) {
         >
           <Bell className="h-5 w-5" />
           {unreadCount > 0 && (
-            <span className="absolute right-0.5 top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-[#fd6401] px-1 text-[10px] font-semibold text-white ring-2 ring-[#050914]">
+            <span className="absolute right-0.5 top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full accent-bg px-1 text-[10px] font-semibold text-white ring-2 ring-[#050914]">
               {unreadCount}
             </span>
           )}
@@ -98,7 +135,7 @@ export function Header({ title, className }: HeaderProps) {
                 </h3>
                 <button
                   onClick={markAllRead}
-                  className="flex items-center gap-1 text-xs font-medium text-[#fd6401] transition hover:text-[#ff7b24]"
+                  className="flex items-center gap-1 text-xs font-medium accent-text transition hover:text-[#ff7b24]"
                 >
                   <CheckCheck className="h-3.5 w-3.5" />
                   Marcar todas
@@ -116,7 +153,7 @@ export function Header({ title, className }: HeaderProps) {
                       key={notification.id}
                       className="flex items-start gap-3 border-b border-white/5 px-4 py-3 transition hover:bg-white/5"
                     >
-                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-white/5 text-[#fd6401] ring-1 ring-white/10">
+                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-white/5 accent-text ring-1 ring-white/10">
                         <NotificationIcon type={notification.type} />
                       </div>
 
@@ -133,7 +170,7 @@ export function Header({ title, className }: HeaderProps) {
                       </div>
 
                       {!notification.read && (
-                        <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-[#fd6401]" />
+                        <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full accent-bg" />
                       )}
                     </div>
                   ))
@@ -150,27 +187,15 @@ export function Header({ title, className }: HeaderProps) {
         )}
       </div>
 
-      <Link
-        href="/perfil"
-        className="flex min-w-0 items-center gap-3 border-l border-white/10 pl-3 transition-colors hover:bg-white/5 sm:pl-4"
-      >
-        {companyAvatarUrl ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={companyAvatarUrl}
-            alt={companyName}
-            className="h-8 w-8 shrink-0 rounded-full object-cover ring-1 ring-white/10"
-          />
-        ) : (
-          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-[#0d1a35] to-[#071124] text-sm font-medium text-[#fd6401] ring-1 ring-white/10">
-            {companyName?.charAt(0).toUpperCase()}
-          </div>
-        )}
+      <div className="flex min-w-0 items-center gap-3 border-l border-white/10 pl-3 sm:pl-4">
+        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-[#0d1a35] to-[#071124] text-sm font-medium text-[#fd6401] ring-1 ring-white/10">
+          {user?.email?.charAt(0).toUpperCase()}
+        </div>
         <div className="hidden min-w-0 text-sm sm:block">
-          <p className="truncate font-medium text-white/90">{companyName}</p>
+          <p className="truncate font-medium text-white/90">{user?.user_metadata?.name as string}</p>
           <p className="max-w-[180px] truncate text-xs text-white/40">{user?.email}</p>
         </div>
-      </Link>
+      </div>
     </header>
   );
 }
